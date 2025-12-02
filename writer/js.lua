@@ -16,8 +16,8 @@ local desField = "deserialize_field"
 local serField = "serialize"
 local staticDes = "deserialize"
 
-list_writers = {}
-list_deserializers = {}
+local list_writers = {}
+local list_deserializers = {}
 
 local function print_list_serializer(type)
 	if type.kind == "primitive" then
