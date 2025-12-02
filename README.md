@@ -43,7 +43,7 @@ item = struct {
 	id = int32 {id=1},
 	name = string {id=2},
 	price = float {id=3},
-	tags = list[string] {id=4},
+	tags = list(string) {id=4},
 }
 
 vec3 = struct {
