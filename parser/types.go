@@ -36,3 +36,10 @@ type Schema struct {
 	Version int
 	Structs []StructType
 }
+
+type MapType struct {
+	KeyType   Type
+	ValueType Type
+}
+
+func (m MapType) TypeKind() string { return "map" }

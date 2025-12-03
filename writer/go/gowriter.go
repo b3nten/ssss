@@ -9,11 +9,22 @@ import (
 	"github.com/b3nten/ssss/parser"
 )
 
+func toGoType(name string) string {
+	switch name {
+		case "f32":
+			return "float32"
+		case "f64":
+			return "float64"
+		default:
+			return name
+	}
+}
+
 func printType(t parser.Type) string {
 	switch t.TypeKind() {
 	case "primitive":
 		pt := t.(parser.PrimitiveType)
-		return pt.Name
+		return toGoType(pt.Name)
 	case "struct":
 		st := t.(*parser.StructType)
 		return toPascalCase(st.Name)
@@ -144,6 +155,8 @@ func Print(s *parser.Schema, namespace string) (string, error) {
 	sb.WriteString("\t\"encoding/binary\"\n")
 	sb.WriteString("\t\"errors\"\n")
 	sb.WriteString("\t\"fmt\"\n")
+	sb.WriteString("\t\"math\"\n")
+	sb.WriteString("\t\"unsafe\"\n")
 	sb.WriteString(")\n\n")
 
 	for _, str := range s.Structs {
@@ -300,6 +313,26 @@ func deserializeUint32(data []byte, offset int) (uint32, int, error) {
 	return val, 4, nil
 }
 
+func deserializeF32(data []byte, offset int) (float32, int, error) {
+	slice := data[offset:]
+	if len(slice) < 4 {
+		return 0, 0, fmt.Errorf("insufficient data for float32")
+	}
+	bits := binary.LittleEndian.Uint32(slice[0:4])
+	val := math.Float32frombits(bits)
+	return val, 4, nil
+}
+
+func deserializeF64(data []byte, offset int) (float64, int, error) {
+	slice := data[offset:]
+	if len(slice) < 8 {
+		return 0, 0, fmt.Errorf("insufficient data for float64")
+	}
+	bits := binary.LittleEndian.Uint64(slice[0:8])
+	val := math.Float64frombits(bits)
+	return val, 8, nil
+}
+
 func deserializeString(data []byte, offset int) (string, int, error) {
 	slice := data[offset:]
 	if len(slice) < 4 {
@@ -381,6 +414,16 @@ func serializeString(value string, b *bytes.Buffer) int {
 	binary.Write(b, binary.LittleEndian, strLen)
 	b.WriteString(value)
 	return 4 + len(value)
+}
+
+func serializeF32(value float32, b *bytes.Buffer) int {
+	binary.Write(b, binary.LittleEndian, *(*uint32)(unsafe.Pointer(&value)))
+	return 4
+}
+
+func serializeF64(value float64, b *bytes.Buffer) int {
+	binary.Write(b, binary.LittleEndian, *(*uint64)(unsafe.Pointer(&value)))
+	return 8
 }
 
 func serializeStruct[K Serializable](value K, b *bytes.Buffer) int {

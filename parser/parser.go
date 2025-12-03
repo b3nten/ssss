@@ -106,6 +106,11 @@ func mapType(tbl *lua.LTable, structs map[string]*StructType) Type {
 		return ListType{
 			ElementType: mapType(tbl.RawGet(lua.LString("of")).(*lua.LTable), structs),
 		}
+	case "map":
+		return MapType{
+			KeyType:   mapType(tbl.RawGet(lua.LString("from")).(*lua.LTable), structs),
+			ValueType: mapType(tbl.RawGet(lua.LString("to")).(*lua.LTable), structs),
+		}
 	default:
 		panic(fmt.Sprintf("unknown type: %s", tbl.RawGet(lua.LString("type")).String()))
 	}

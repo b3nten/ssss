@@ -7,8 +7,8 @@ local cstype_map = {
 	uint32 = "uint",
 	int64 = "long",
 	uint64 = "ulong",
-	float32 = "float",
-	float64 = "double",
+	f32 = "float",
+	f64 = "double",
 	bool = "bool",
 	string = "string",
 }
@@ -22,8 +22,8 @@ local ctype_to_reader = {
 	uint32 = "ReadUInt32",
 	int64 = "ReadInt64",
 	uint64 = "ReadUInt64",
-	float32 = "ReadSingle",
-	float64 = "ReadDouble",
+	f32 = "ReadSingle",
+	f64 = "ReadDouble",
 	bool = "ReadBoolean",
 }
 
@@ -36,8 +36,8 @@ local uses_value = {
 	uint32 = true,
 	int64 = true,
 	uint64 = true,
-	float32 = true,
-	float64 = true,
+	f32 = true,
+	f64 = true,
 	bool = true,
 }
 
@@ -67,12 +67,12 @@ local function print_field_serialization(name, field)
 		return str_block {
 			fname = name,
 			uses_value = uses_value[field.type.name] and not field.index and ".Value" or "",
-		}("w.Write(${fname}${uses_value});")
+		} ("w.Write(${fname}${uses_value});")
 	elseif field.type.kind == "struct" then
 		return str_block {
 			fname = name,
 			ftype = pascal_case(field.type.name),
-		}("_${ftype}.Serialize(${fname}, w);")
+		} ("_${ftype}.Serialize(${fname}, w);")
 	elseif field.type.kind == "list" then
 		local of_type = field.type.of
 		local index = field.index or 0
@@ -149,7 +149,7 @@ local function print_field_deserialization(name, field)
 		return str_block {
 			fname = name,
 			ftype = ctype_to_reader[field.type.name],
-		}("${fname} = r.${ftype}();")
+		} ("${fname} = r.${ftype}();")
 	elseif field.type.kind == "struct" then
 		return str_block {
 			fname = name,

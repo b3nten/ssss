@@ -72,6 +72,11 @@ func generateTypeTable(L *lua.LState, lt Type) *lua.LTable {
 		lt := lt.(ListType)
 		tbl.RawSet(lua.LString("kind"), lua.LString("list"))
 		tbl.RawSet(lua.LString("of"), generateTypeTable(L, lt.ElementType))
+	case "map":
+		mt := lt.(MapType)
+		tbl.RawSet(lua.LString("kind"), lua.LString("map"))
+		tbl.RawSet(lua.LString("from"), generateTypeTable(L, mt.KeyType))
+		tbl.RawSet(lua.LString("to"), generateTypeTable(L, mt.ValueType))
 	default:
 		panic(fmt.Sprintf("unknown type kind: %T", lt))
 	}

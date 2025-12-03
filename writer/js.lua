@@ -344,6 +344,18 @@ function write_uint32(value, b) {
 	b.dview.setUint32(tmp, value, true);
 }
 
+function write_f32(value, b) {
+	tmp = b.length;
+	b.resize(b.len + 4);
+	b.dview.setFloat32(tmp, value, true);
+}
+
+function write_f64(value, b) {
+	tmp = b.length;
+	b.resize(b.len + 8);
+	b.dview.setFloat64(tmp, value, true);
+}
+
 function write_string(value, b) {
 	const stringLength = value.length;
 	if (stringLength > 300) {
@@ -430,6 +442,16 @@ function deserialize_int32(data, offset, struct, field) {
 function deserialize_uint32(data, offset, struct, field) {
 	struct[field] = data.getUint32(offset, true);
 	return offset + 4;
+}
+
+function deserialize_f32(data, offset, struct, field) {
+	struct[field] = data.getFloat32(offset, true);
+	return offset + 4;
+}
+
+function deserialize_f64(data, offset, struct, field) {
+	struct[field] = data.getFloat64(offset, true);
+	return offset + 8;
 }
 
 const text_decoder = new TextDecoder();
