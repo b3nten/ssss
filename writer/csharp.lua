@@ -48,6 +48,11 @@ local function cs_type(field_type)
 		return pascal_case(field_type.name)
 	elseif field_type.kind == "list" then
 		return sprintf("List<${type}>", { type = cs_type(field_type.of) })
+	elseif field_type.kind == "map" then
+		return sprintf("Dictionary<${key_type}, ${value_type}>", {
+			key_type = cs_type(field_type.from),
+			value_type = cs_type(field_type.to),
+		})
 	else
 		error("Unknown field type kind: " .. tostring(field_type.kind))
 	end
@@ -73,6 +78,28 @@ local function print_field_serialization(name, field)
 			fname = name,
 			ftype = pascal_case(field.type.name),
 		} ("_${ftype}.Serialize(${fname}, w);")
+	elseif field.type.kind == "map" then
+		local key_type = field.type.from
+		local value_type = field.type.to
+		local index = field.index or 0
+		return str_block {
+			fname = name,
+			index = field.index or 0,
+			key_serialization = print_field_serialization("kv" .. tostring(index) .. ".Key", { type = key_type, index = index + 1 }),
+			value_serialization = print_field_serialization("kv" .. tostring(index) .. ".Value", { type = value_type, index = index + 1 }),
+		} [[
+			var length${index} = w.BaseStream.Position;
+			w.Write((uint)0);
+			foreach (var kv${index} in ${fname})
+			{
+				${key_serialization}
+				${value_serialization}
+			}
+			var end${index} = w.BaseStream.Position;
+			w.Seek((int)length${index}, SeekOrigin.Begin);
+			w.Write((uint)(end${index} - length${index} - 4));
+			w.Seek(0, SeekOrigin.End);
+		]]
 	elseif field.type.kind == "list" then
 		local of_type = field.type.of
 		local index = field.index or 0
@@ -159,6 +186,35 @@ local function print_field_deserialization(name, field)
 				${ftype} obj = new();
 				_${ftype}.Deserialize(obj, r);
 				${fname} = obj;
+			}
+		]]
+	elseif field.type.kind == "map" then
+		local key_type = field.type.from
+		local value_type = field.type.to
+		local index = field.index or 0
+		return str_block {
+			name = name,
+			index = field.index or 0,
+			key_type = key_type,
+			value_type = value_type,
+			ktype = cs_type(key_type),
+			vtype = cs_type(value_type),
+			key_des_fn = print_field_deserialization("key" .. tostring(index), { type = key_type, index = index + 1 }),
+			value_des_fn = print_field_deserialization("value" .. tostring(index), { type = value_type, index = index + 1 }),
+		} [[
+			{
+				uint mapLength${index} = r.ReadUInt32();
+				long startPos${index} = r.BaseStream.Position;
+				var map${index} = new System.Collections.Generic.Dictionary<${ktype}, ${vtype}>();
+				while (r.BaseStream.Position - startPos${index} < mapLength${index})
+				{
+					${ktype} key${index};
+					${vtype} value${index};
+					${key_des_fn}
+					${value_des_fn}
+					map${index}.Add(key${index}, value${index});
+				}
+				${name} = map${index};
 			}
 		]]
 	elseif field.type.kind == "list" then

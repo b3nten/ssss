@@ -6,18 +6,11 @@ import (
 
 	"github.com/b3nten/ssss/parser"
 	writers "github.com/b3nten/ssss/writer"
-	gowriter "github.com/b3nten/ssss/writer/go"
 	lua "github.com/yuin/gopher-lua"
 )
 
 func generateGo(file *SchemaFile) error {
-	namespace := getFileNameFromPath(file.Input)
-	code, err := gowriter.Print(file.Schema, namespace)
-	if err != nil {
-		return err
-	}
-	file.Generated[namespace+".go"] = code
-	return nil
+	return generateCustom(file, writers.GoTemplate)
 }
 
 func generateJS(file *SchemaFile) error {

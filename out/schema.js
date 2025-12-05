@@ -1,256 +1,296 @@
-local function print_struct_serializer(name, struct)
-	local function print_writer(field, input)
-		if field.type.kind == "primitive" then
-			return [[
-				b.write_${type}(${input})
-			]] % { input = input, type = field.type.name }
-		elseif field.type.kind == "struct" then
-			return [[
-				${type}_serialize(b, ${input})
-			]] % {
-				input = input,
-				type = pascal_case(field.type.name)
-		 }
-		elseif field.type.kind == "list" then
-			local i = field.index or 0
-			return [[
-				b.write_uint32(0);
-				const listStart${i} = b.length;
-				for(const item${i} of ${input}) {
-					${item_writer}
-				}
-				b.set_uint32(listStart${i} - 4, b.length - listStart${i});
-			]] % {
-				i = i,
-				input = input,
-				item_writer = print_writer({ type = field.type.of, index = i + 1 }, "item"..i)
-			}
-		elseif field.type.kind == "map" then
-			local i = field.index or 0
-			return [[
-				b.write_uint32(0);
-				const mapStart${i} = b.length;
-				for(const [key${i}, value${i}] of Object.entries(${input})) {
-					${key_writer}
-					${value_writer}
-				}
-				b.set_uint32(mapStart${i} - 4, b.length - mapStart${i});
-			]] % {
-				i = i,
-				input = input,
-				key_writer = print_writer({ type = field.type.from, index = i + 1 }, "key"..i),
-				value_writer = print_writer({ type = field.type.to, index = i + 1 }, "value"..i)
-			}
-		else
-			return ""
-		end
-	end
+export class Bar {
+	static get TypeID() { return 32026 }
 
-	local function print_field_serializers()
-		local out = ""
-		for _, field in pairs(struct.fields) do
-			out = out .. [[
-			if(s.${fname} !== undefined) {
-				b.write_uint16(${field_id});
-				${writer}
-			}
-		  ]] % {
-				fname = field.name,
-				field_id = field.id,
-				writer = print_writer(field, "s.${fname}" % { fname = field.name } )
-			}
-		end
-		return out
-	end
+	baz
 
-	return [[
-		function ${sname}_serialize(b, s) {
-			b.write_uint16(${type_id})
+
+	deserialize(bytes) {
+		const b = new ByteReader(bytes)
+		Bar_deserialize(b, this)
+		return this;
+	}
+
+	serialize() {
+		const w = new ByteWriter;
+		Bar_serialize(w, this)
+		return w.bytes()
+	}
+}
+
+function Bar_serialize(b, s) {
+	b.write_uint16(32026)
+	b.write_uint32(0);
+	const structStart = b.length;
+	if (s.baz !== undefined) {
+		b.write_uint16(1);
+		b.write_int32(s.baz)
+
+	}
+
+	b.set_uint32(structStart - 4, b.length - structStart);
+}
+
+function Bar_deserialize(br) {
+	const typeId = br.read_uint32()
+	const length = br.read_uint32()
+	if (length > br.length || length > Math.MAX_SAFE_INTEGER) {
+		throw new Error("Invalid struct length");
+	}
+	const seenFields = new Set;
+	const startLen = br.length;
+	for (; br.length - startLen < length;) {
+		const fieldId = br.read_uint16();
+		if (seenFields.has(fieldId)) {
+			throw new Error("Duplicate field ID " + fieldId + " in struct Bar");
+		}
+		if (fieldId > 1) {
+			return;
+		}
+		seenFields.add(fieldId);
+		switch (fieldId) {
+			case 1:
+				s.baz = br.read_int32();
+
+				break;
+
+		}
+	}
+}
+
+
+export class Foo {
+	static get TypeID() { return 32471 }
+
+	lst2
+	m
+	x
+	f
+	b
+	bar
+	lst
+
+
+	deserialize(bytes) {
+		const b = new ByteReader(bytes)
+		Foo_deserialize(b, this)
+		return this;
+	}
+
+	serialize() {
+		const w = new ByteWriter;
+		Foo_serialize(w, this)
+		return w.bytes()
+	}
+}
+
+function Foo_serialize(b, s) {
+	b.write_uint16(32471)
+	b.write_uint32(0);
+	const structStart = b.length;
+	if (s.lst2 !== undefined) {
+		b.write_uint16(5);
+		b.write_uint32(0);
+		const listStart0 = b.length;
+		for (const item0 of s.lst2) {
 			b.write_uint32(0);
-			const structStart = b.length;
-			${field_serializers}
-			b.set_uint32(structStart - 4, b.length - structStart);
+			const listStart1 = b.length;
+			for (const item1 of item0) {
+				b.write_string(item1)
+
+			}
+			b.set_uint32(listStart1 - 4, b.length - listStart1);
+
 		}
-	]] % {
-		type_id = struct.id,
-		sname = pascal_case(name),
-		field_serializers = print_field_serializers()
+		b.set_uint32(listStart0 - 4, b.length - listStart0);
+
 	}
-end
+	if (s.m !== undefined) {
+		b.write_uint16(6);
+		b.write_uint32(0);
+		const mapStart0 = b.length;
+		for (const [key0, value0] of Object.entries(s.m)) {
+			b.write_int32(key0)
 
-local function print_struct_deserializer(name, struct)
+			b.write_string(value0)
 
-	local function get_max_field_id()
-		local max_id = 0
-		for _, field in pairs(struct.fields) do
-			if field.id > max_id then
-				max_id = field.id
-			end
-		end
-		return max_id
-	end
-
-	local function print_field_deserializer(field, output)
-		if field.type.kind == 'primitive' then
-			return [[
-				${output} = br.read_${type}();
-			]] % {
-				output = output,
-				type = field.type.name
-			}
-		elseif field.type.kind == "struct" then
-			return [[
-				${output} = new ${type}();
-				${type}_deserialize(br, ${output});
-			]] % {
-				output = output,
-				type = pascal_case(field.type.name)
-			}
-		elseif field.type.kind == "list" then
-			local i = field.index or 0
-			return [[
-			{
-				const listLength${i} = br.read_uint32();
-				const listStart${i} = br.position;
-				${output} = [];
-				for (; br.position - listStart${i} < listLength${i};) {
-					let item${i};
-					${item_deserializer}
-					${output}.push(item${i});
-				}
-			}
-			]] % {
-				i = i,
-				output = output,
-				item_deserializer = print_field_deserializer({ type = field.type.of, index = i + 1 }, "item"..i)
-			}
-		elseif field.type.kind == "map" then
-			local i = field.index or 0
-			return [[
-			{
-				const mapLength${i} = br.read_uint32();
-				const mapStart${i} = br.position;
-				${output} = {};
-				for (; br.position - mapStart${i} < mapLength${i};) {
-					let key${i};
-					${key_deserializer}
-					let value${i};
-					${value_deserializer}
-					${output}[key${i}] = value${i};
-				}
-			}
-			]] % {
-				i = i,
-				output = output,
-				key_deserializer = print_field_deserializer({ type = field.type.from, index = i + 1 }, "key"..i),
-				value_deserializer = print_field_deserializer({ type = field.type.to, index = i + 1 }, "value"..i)
-			}
-		end
-		return ""
-	end
-
-	local function print_field_deserializers()
-		local out = ""
-		for _, field in pairs(struct.fields) do
-			out = out .. [[
-				case ${field_id}:
-					${field_deserializer}
-					break;
-				]] % {
-				field_id = field.id,
-				field_deserializer = print_field_deserializer(field, "s.${field_name}" % { field_name = field.name })
-			}
-		end
-		return out
-	end
-
-	return [[
-		function ${sname}_deserialize(br) {
-			const typeId = br.read_uint32()
-			const length = br.read_uint32()
-			if (length > br.length || length > Math.MAX_SAFE_INTEGER) {
-				throw new Error("Invalid struct length");
-			}
-			const seenFields = new Set;
-			const startLen = br.length;
-			for (; br.length - startLen < length;) {
-				const fieldId = br.read_uint16();
-				if (seenFields.has(fieldId)) {
-					throw new Error("Duplicate field ID " + fieldId + " in struct ${sname}");
-				}
-				if (fieldId > ${max_field_id}) {
-					return;
-				}
-				seenFields.add(fieldId);
-				switch (fieldId) {
-					${field_deserializers}
-				}
-			}
 		}
-	]] % {
-		sname = pascal_case(name),
-		type_id = struct.id,
-		max_field_id = get_max_field_id(),
-		field_deserializers = print_field_deserializers()
+		b.set_uint32(mapStart0 - 4, b.length - mapStart0);
+
 	}
-end
+	if (s.x !== undefined) {
+		b.write_uint16(7);
+		b.write_uint32(0);
+		const mapStart0 = b.length;
+		for (const [key0, value0] of Object.entries(s.x)) {
+			b.write_string(key0)
 
-local function print_struct(name, struct)
-	local function print_fields()
-		local out = ""
-		for field_id, field in pairs(struct.fields) do
-			out = out .. [[
-				${fname}
-			]] % {
-				fname = field.name,
+			b.write_uint32(0);
+			const mapStart1 = b.length;
+			for (const [key1, value1] of Object.entries(value0)) {
+				b.write_int32(key1)
+
+				b.write_bool(value1)
+
 			}
-		end
-		return out
-	end
+			b.set_uint32(mapStart1 - 4, b.length - mapStart1);
 
-	return [[
-		export class ${sname} {
-			static get TypeID() { return ${type_id} }
-
-			${fields}
-
-			deserialize(bytes) {
-				const b = new ByteReader(bytes)
-				${sname}_deserialize(b, this)
-				return this;
-			}
-
-			serialize() {
-				const w = new ByteWriter;
-				${sname}_serialize(w, this)
-				return w.bytes()
-			}
 		}
+		b.set_uint32(mapStart0 - 4, b.length - mapStart0);
 
-		${serializer}
-		${deserializer}
-	]] % {
-		sname = pascal_case(name),
-		fields = print_fields(),
-		type_id = struct.id,
-		serializer = print_struct_serializer(name, struct),
-		deserializer = print_struct_deserializer(name, struct)
 	}
-end
+	if (s.f !== undefined) {
+		b.write_uint16(1);
+		b.write_f32(s.f)
 
-local function print_structs()
-	local out = ""
-	for name, struct in pairs(Schema.structs) do
-		out = out .. print_struct(name, struct) .. "\n"
-	end
-	return out
-end
+	}
+	if (s.b !== undefined) {
+		b.write_uint16(2);
+		b.write_bool(s.b)
 
-local file = str_block {
-	name = Schema.name,
-	structs = print_structs(),
-} [[
-${structs}
+	}
+	if (s.bar !== undefined) {
+		b.write_uint16(3);
+		Bar_serialize(b, s.bar)
+
+	}
+	if (s.lst !== undefined) {
+		b.write_uint16(4);
+		b.write_uint32(0);
+		const listStart0 = b.length;
+		for (const item0 of s.lst) {
+			b.write_int32(item0)
+
+		}
+		b.set_uint32(listStart0 - 4, b.length - listStart0);
+
+	}
+
+	b.set_uint32(structStart - 4, b.length - structStart);
+}
+
+function Foo_deserialize(br) {
+	const typeId = br.read_uint32()
+	const length = br.read_uint32()
+	if (length > br.length || length > Math.MAX_SAFE_INTEGER) {
+		throw new Error("Invalid struct length");
+	}
+	const seenFields = new Set;
+	const startLen = br.length;
+	for (; br.length - startLen < length;) {
+		const fieldId = br.read_uint16();
+		if (seenFields.has(fieldId)) {
+			throw new Error("Duplicate field ID " + fieldId + " in struct Foo");
+		}
+		if (fieldId > 7) {
+			return;
+		}
+		seenFields.add(fieldId);
+		switch (fieldId) {
+			case 5:
+				{
+					const listLength0 = br.read_uint32();
+					const listStart0 = br.position;
+					s.lst2 = [];
+					for (; br.position - listStart0 < listLength0;) {
+						let item0;
+						{
+							const listLength1 = br.read_uint32();
+							const listStart1 = br.position;
+							item0 = [];
+							for (; br.position - listStart1 < listLength1;) {
+								let item1;
+								item1 = br.read_string();
+
+								item0.push(item1);
+							}
+						}
+
+						s.lst2.push(item0);
+					}
+				}
+
+				break;
+			case 6:
+				{
+					const mapLength0 = br.read_uint32();
+					const mapStart0 = br.position;
+					s.m = {};
+					for (; br.position - mapStart0 < mapLength0;) {
+						let key0;
+						key0 = br.read_int32();
+
+						let value0;
+						value0 = br.read_string();
+
+						s.m[key0] = value0;
+					}
+				}
+
+				break;
+			case 7:
+				{
+					const mapLength0 = br.read_uint32();
+					const mapStart0 = br.position;
+					s.x = {};
+					for (; br.position - mapStart0 < mapLength0;) {
+						let key0;
+						key0 = br.read_string();
+
+						let value0;
+						{
+							const mapLength1 = br.read_uint32();
+							const mapStart1 = br.position;
+							value0 = {};
+							for (; br.position - mapStart1 < mapLength1;) {
+								let key1;
+								key1 = br.read_int32();
+
+								let value1;
+								value1 = br.read_bool();
+
+								value0[key1] = value1;
+							}
+						}
+
+						s.x[key0] = value0;
+					}
+				}
+
+				break;
+			case 1:
+				s.f = br.read_f32();
+
+				break;
+			case 2:
+				s.b = br.read_bool();
+
+				break;
+			case 3:
+				s.bar = new Bar();
+				Bar_deserialize(br, s.bar);
+
+				break;
+			case 4:
+				{
+					const listLength0 = br.read_uint32();
+					const listStart0 = br.position;
+					s.lst = [];
+					for (; br.position - listStart0 < listLength0;) {
+						let item0;
+						item0 = br.read_int32();
+
+						s.lst.push(item0);
+					}
+				}
+
+				break;
+
+		}
+	}
+}
+
+
+
 
 class ByteWriter {
 	get length() { return this.len; }
@@ -531,6 +571,3 @@ class ByteReader {
 		return result;
 	}
 }
-]]
-
-Output[Schema.name .. ".js"] = file

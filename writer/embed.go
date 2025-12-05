@@ -9,3 +9,6 @@ var JavascriptTemplate string
 
 //go:embed csharp.lua
 var CSharpTemplate string
+
+//go:embed go.lua
+var GoTemplate string

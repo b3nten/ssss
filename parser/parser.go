@@ -49,6 +49,7 @@ func GenerateSchema(file, name string) (*Schema, error) {
 
 		for _, lstruct := range lstructs {
 			if fields, ok := lstruct.RawGet(lua.LString("fields")).(*lua.LTable); ok {
+				seenFields := map[uint16]bool{}
 				fields.ForEach(func(key lua.LValue, value lua.LValue) {
 					if fieldTbl, ok := value.(*lua.LTable); ok {
 						sv := ltos[lstruct]
@@ -68,6 +69,10 @@ func GenerateSchema(file, name string) (*Schema, error) {
 							err = fmt.Errorf("field %s has invalid ID in metadata", key.String())
 							return
 						}
+						if seenFields[uint16(i)] {
+							err = fmt.Errorf("duplicate field ID %d in struct %s", uint16(i), sv.Name)
+						}
+						seenFields[uint16(i)] = true
 						sv.Fields = append(sv.Fields, Field{
 							ID:   uint16(i),
 							Name: key.String(),

@@ -34,29 +34,30 @@ The goals of SSSS are as follows:
 	
 ## Usage
 
-Schema files are written in Lua:
+Schema files are written in Lua. Each field needs a unique id, 
+which is used in the serialized format to identify fields:
 
 ```lua
 version = 1
 
 item = struct {
-	id = int32 {id=1},
-	name = string {id=2},
-	price = float {id=3},
-	tags = list(string) {id=4},
+	id = int32 [1],
+	name = str [2],
+	price = f64 [3],
+	tags = list(string) [4],
 }
 
 vec3 = struct {
-	x = float {id=1},
-	y = float {id=2},
-	z = float {id=3},
+	x = f32 [1],
+	y = f32 [2],
+	z = f32 [3],
 }
 
 player = struct {
-	id = int32 {id=1},
-	name = string {id=2},
-	position = vec3 {id=3},
-	inventory = list(item) {id=4},
+	id = int32 [1],
+	name = str [2],
+	position = vec3 [3],
+	inventory = list(item) [4],
 }
 ```
 
@@ -79,13 +80,11 @@ See examples of Lua templating in `/writer/js.lua` and `/writer/csharp.lua`.
 SSSS supports the following data types:
 - bool
 - (u)int(8|16|32|64)
+- float(32|64)
 - string
 - list<T>
+- map<K,V> where K is a primitive type (excluding string & bool) and V is any type
 - struct
-
-The following data types are planned for future releases:
-- float(32|64) (not yet implemented)
-- map<K,V> (not yet implemented)
 
 ### Serialization format
 
@@ -121,12 +120,12 @@ struct = {
 field = {
 	name = string,
 	id = number, -- the user-provided id for the field
-	type = "primitive" | "struct" | "list",
+	type = "primitive" | "struct" | "list" | "map",
 }
 
 primitive_field = {
 	type = "primitive",
-	name = "bool" | "int8" | "uint8" | "int16" | "uint16" | "int32" | "uint32" | "int64" | "uint64" | "string",
+	name = "bool" | "int8" | "uint8" | "int16" | "uint16" | "int32" | "uint32" | "int64" | "uint64" | "f32" | "f64" | "string",
 }
 
 list_field = {
@@ -138,14 +137,21 @@ struct_field = {
 	type = "struct",
 	name = struct,
 }
+
+map_field = {
+	type = "map",
+	from = "primitive", -- key type (must be a primitive type except string/bool)
+	to = field,      -- value type (can be any type)
+}
+
+-- The script should populate the Output table with file names as keys and file contents as values.
+Output["file.ext"] = "file contents as a string"
 ```
 
 See the existing codegen scripts in `/writer/` for examples of how to use the Schema table to generate code.
 
 ### Upcoming Features
 
-- Map data types.
-- Floating point data types.
 - Custom field metadata.
 - Default values (under consideration).
 
