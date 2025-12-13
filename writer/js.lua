@@ -111,6 +111,9 @@ local function print_struct_deserializer(name, struct)
 			return [[
 			{
 				const listLength${i} = br.read_uint32();
+				if (listLength${i} > (br.length - br.position)) {
+					throw new Error("Invalid list length");
+				}
 				const listStart${i} = br.position;
 				${output} = [];
 				for (; br.position - listStart${i} < listLength${i};) {
@@ -129,6 +132,9 @@ local function print_struct_deserializer(name, struct)
 			return [[
 			{
 				const mapLength${i} = br.read_uint32();
+				if (mapLength${i} > (br.length-br.position)) {
+					throw new Error("Invalid map length");
+				}
 				const mapStart${i} = br.position;
 				${output} = {};
 				for (; br.position - mapStart${i} < mapLength${i};) {
@@ -165,15 +171,18 @@ local function print_struct_deserializer(name, struct)
 	end
 
 	return [[
-		function ${sname}_deserialize(br) {
-			const typeId = br.read_uint32()
+		function ${sname}_deserialize(br, s) {
+			const typeId = br.read_uint16()
+			if (typeId !== ${type_id}) {
+				throw new Error("Type ID mismatch deserializing struct ${sname}: expected ${type_id}, got " + typeId);
+			}
 			const length = br.read_uint32()
-			if (length > br.length || length > Math.MAX_SAFE_INTEGER) {
-				throw new Error("Invalid struct length");
+			if (length > (br.length - br.position)) {
+				throw new Error("Struct ${sname} length exceeds buffer length");
 			}
 			const seenFields = new Set;
-			const startLen = br.length;
-			for (; br.length - startLen < length;) {
+			const startPos = br.position;
+			for (; br.position - startPos < length;) {
 				const fieldId = br.read_uint16();
 				if (seenFields.has(fieldId)) {
 					throw new Error("Duplicate field ID " + fieldId + " in struct ${sname}");
@@ -212,6 +221,10 @@ local function print_struct(name, struct)
 		export class ${sname} {
 			static get TypeID() { return ${type_id} }
 
+			constructor(fields) {
+				if (fields) Object.assign(this, fields)
+			}
+
 			${fields}
 
 			deserialize(bytes) {
@@ -246,6 +259,61 @@ local function print_structs()
 	return out
 end
 
+local function print_types()
+	local function print_struct_type(name, struct)
+		local function print_field(field)
+			if field.type.kind == "primitive" then
+				if field.type.name == "int64" or field.type.name == "uint64" then
+					return "bigint"
+				elseif field.type.name == "string" then
+					return "string"
+				elseif field.type.name == "bool" then
+					return "boolean"
+				else return "number"
+				end
+			elseif field.type.kind == "struct" then
+				return pascal_case(field.type.name)
+			elseif field.type.kind == "list" then
+				return print_field({ type = field.type.of }) .. "[]"
+			elseif field.type.kind == "map" then
+				return "Record<" .. print_field({ type = field.type.from }) .. ", " .. print_field({ type = field.type.to }) .. ">"
+			end
+			return "any"
+		end
+		local function print_fields()
+			local out = ""
+			for _, field in pairs(struct.fields) do
+				out = out .. [[
+					${fname}?: ${ftype};
+				]] % {
+					fname = field.name,
+					ftype = print_field(field)
+				}
+			end
+			return out
+		end
+		return [[
+			export class ${sname} {
+				static readonly TypeID: number;
+
+				constructor(fields?: Partial<Omit<${sname}, "serialize" | "deserialize">>);
+
+				${fields}
+				deserialize(bytes: Uint8Array): ${sname};
+				serialize(): Uint8Array;
+			}
+		]] % {
+			sname = pascal_case(name),
+			fields = print_fields()
+		}
+	end
+	local out = ""
+	for name, struct in pairs(Schema.structs) do
+		out = out .. print_struct_type(name, struct) .. "\n"
+	end
+	return out
+end
+
 local file = str_block {
 	name = Schema.name,
 	structs = print_structs(),
@@ -256,7 +324,7 @@ class ByteWriter {
 	get length() { return this.len; }
 
 	encoder = new TextEncoder();
-	buffer = new ArrayBuffer(0xFFF)
+	buffer = new ArrayBuffer(0xFF)
 	view = new Uint8Array(this.buffer, 0)
 	dview = new DataView(this.buffer, 0)
 	len = 0;
@@ -306,12 +374,6 @@ class ByteWriter {
 		this.dview.setInt16(ByteWriter._tmp, value, true);
 	}
 
-	write_int16(value) {
-		ByteWriter._tmp = this.length;
-		this.resize(this.len + 2);
-		this.dview.setInt16(ByteWriter._tmp, value, true);
-	}
-
 	write_uint16(value) {
 		ByteWriter._tmp = this.length;
 		this.resize(this.len + 2);
@@ -330,6 +392,18 @@ class ByteWriter {
 		this.dview.setUint32(ByteWriter._tmp, value, true);
 	}
 
+	write_int64(value) {
+		ByteWriter._tmp = this.length;
+		this.resize(this.len + 8);
+		this.dview.setBigInt64(ByteWriter._tmp, BigInt(value), true);
+	}
+
+	write_uint64(value) {
+		ByteWriter._tmp = this.length;
+		this.resize(this.len + 8);
+		this.dview.setBigUint64(ByteWriter._tmp, BigInt(value), true);
+	}
+
 	write_f32(value) {
 		ByteWriter._tmp = this.length;
 		this.resize(this.len + 4);
@@ -339,7 +413,7 @@ class ByteWriter {
 	write_f64(value) {
 		ByteWriter._tmp = this.length;
 		this.resize(this.len + 8);
-		this.dview.setFloat64(ByteWriter._ByteWriter._ByteWriter._tmp, value, true);
+		this.dview.setFloat64(ByteWriter._tmp, value, true);
 	}
 
 	write_string(value) {
@@ -351,7 +425,7 @@ class ByteWriter {
 			return;
 		}
 		const lengthPos = this.length;
-		write_uint32(0, this);
+		this.write_uint32(0, this);
 		const start = this.length;
 		if (stringLength === 0) {
 			return;
@@ -367,20 +441,20 @@ class ByteWriter {
 				codePoint = (a << 10) + b2 + (0x10000 - (0xD800 << 10) - 0xDC00);
 			}
 			if (codePoint < 0x80) {
-				write_uint8(codePoint, this);
+				this.write_uint8(codePoint, this);
 			} else {
 				if (codePoint < 0x800) {
-					write_uint8(((codePoint >> 6) & 0x1F) | 0xC0, this);
+					this.write_uint8(((codePoint >> 6) & 0x1F) | 0xC0, this);
 				} else {
 					if (codePoint < 0x10000) {
-						write_uint8(((codePoint >> 12) & 0x0F) | 0xE0, this);
+						this.write_uint8(((codePoint >> 12) & 0x0F) | 0xE0, this);
 					} else {
-						write_uint8(((codePoint >> 18) & 0x07) | 0xF0, this);
-						write_uint8(((codePoint >> 12) & 0x3F) | 0x80, this);
+						this.write_uint8(((codePoint >> 18) & 0x07) | 0xF0, this);
+						this.write_uint8(((codePoint >> 12) & 0x3F) | 0x80, this);
 					}
-					write_uint8(((codePoint >> 6) & 0x3F) | 0x80, this);
+					this.write_uint8(((codePoint >> 6) & 0x3F) | 0x80, this);
 				}
-				write_uint8((codePoint & 0x3F) | 0x80, this);
+				this.write_uint8((codePoint & 0x3F) | 0x80, this);
 			}
 		}
 		this.set_uint32(lengthPos, this.length - start);
@@ -407,11 +481,15 @@ class ByteWriter {
 
 class ByteReader {
 	constructor(buffer) {
-		this.buffer = buffer
-		this.view = new DataView(this.buffer)
-		this.position = 0;
-		this.length = buffer.length
-	}
+    this.buffer = buffer
+    this.view = new DataView(
+        this.buffer.buffer,
+        this.buffer.byteOffset,
+        this.buffer.byteLength
+    );
+    this.position = 0;
+    this.length = buffer.length
+  }
 
 	read_bool() {
 		if (this.position + 1 > this.length) {
@@ -470,6 +548,24 @@ class ByteReader {
 		return value;
 	}
 
+	read_int64() {
+		if (this.position + 8 > this.length) {
+			throw new Error("Read past end of buffer");
+		}
+		const value = this.view.getBigInt64(this.position, true);
+		this.position += 8;
+		return value;
+	}
+
+	read_uint64() {
+		if (this.position + 8 > this.length) {
+			throw new Error("Read past end of buffer");
+		}
+		const value = this.view.getBigUint64(this.position, true);
+		this.position += 8;
+		return value;
+	}
+
 	read_f32() {
 		if (this.position + 4 > this.length) {
 			throw new Error("Read past end of buffer");
@@ -490,10 +586,17 @@ class ByteReader {
 
 	read_string() {
 		const length = this.read_uint32();
+		if (length === 0) return ""
+
+		if (length > (this.length - this.position)) {
+			throw new Error("String is longer than remaining buffer");
+		}
+
 		if (length > 300) {
-			const bytes = new Uint8Array(this.buffer, this.position, length);
-			if (!ByteReader.decoder) ByteReader.decoder = new TextDecoder;
-			struct[field] = ByteReader.decoder.decode(bytes);
+			const encoded = this.buffer.slice(this.position, this.position + length);
+			this.position += length;
+			const decoder = new TextDecoder();
+			return decoder.decode(encoded);
 		} else {
 			const end = this.position + length;
 			if (end > this.length) {
@@ -527,10 +630,12 @@ class ByteReader {
 				}
 			}
 			this.position = end;
+			return result;
 		}
-		return result;
 	}
 }
 ]]
 
 Output[Schema.name .. ".js"] = file
+
+Output[Schema.name .. ".d.ts"] = print_types()

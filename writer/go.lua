@@ -2,6 +2,10 @@ local function go_type(field)
 	local t = field.name
 	if t == "bool" then
 		return "bool"
+	elseif t == "int8" then
+		return "int8"
+	elseif t == "uint8" then
+		return "uint8"
 	elseif t == "int16" then
 		return "int16"
 	elseif t == "uint16" then
@@ -10,6 +14,10 @@ local function go_type(field)
 		return "int32"
 	elseif t == "uint32" then
 		return "uint32"
+	elseif t == "int64" then
+		return "int64"
+	elseif t == "uint64" then
+		return "uint64"
 	elseif t == "f32" then
 		return "float32"
 	elseif t == "f64" then
@@ -56,7 +64,7 @@ local function print_struct_serializer(name, struct)
 			]] % {
 				i = i,
 				input = input,
-				item_writer = print_writer({ type = field.type.of, index = i + 1 }, "item"..i)
+				item_writer = print_writer({ type = field.type.of, index = i + 1 }, "item" .. i)
 			}
 		elseif field.type.kind == "map" then
 			local i = field.index or 0
@@ -78,8 +86,8 @@ local function print_struct_serializer(name, struct)
 			]] % {
 				i = i,
 				input = input,
-				key_writer = print_writer({ type = field.type.from, index = i + 1 }, "key"..i),
-				value_writer = print_writer({ type = field.type.to, index = i + 1 }, "value"..i)
+				key_writer = print_writer({ type = field.type.from, index = i + 1 }, "key" .. i),
+				value_writer = print_writer({ type = field.type.to, index = i + 1 }, "value" .. i)
 			}
 		else
 			return ""
@@ -134,7 +142,6 @@ local function print_struct_serializer(name, struct)
 end
 
 local function print_struct_deserializer(name, struct)
-
 	local function get_max_field_id()
 		local max_id = 0
 		for _, field in pairs(struct.fields) do
@@ -151,7 +158,7 @@ local function print_struct_deserializer(name, struct)
 		elseif type.kind == "struct" then
 			return pascal_case(type.name)
 		elseif type.kind == "list" then
-			return "[]${elem_type}"% {
+			return "[]${elem_type}" % {
 				elem_type = print_type(type.of)
 			}
 		elseif type.kind == "map" then
@@ -196,7 +203,7 @@ local function print_struct_deserializer(name, struct)
 				output = output,
 				list_type = print_type(field.type),
 				elem_type = print_type(field.type.of),
-				item_deserializer = print_field_deserializer({ type = field.type.of, index = i + 1 }, "item"..i)
+				item_deserializer = print_field_deserializer({ type = field.type.of, index = i + 1 }, "item" .. i)
 			}
 		elseif field.type.kind == "map" then
 			local i = field.index or 0
@@ -226,8 +233,8 @@ local function print_struct_deserializer(name, struct)
 				map_type = print_type(field.type),
 				key_type = print_type(field.type.from),
 				value_type = print_type(field.type.to),
-				key_deserializer = print_field_deserializer({ type = field.type.from, index = i + 1 }, "key"..i),
-				value_deserializer = print_field_deserializer({ type = field.type.to, index = i + 1 }, "value"..i)
+				key_deserializer = print_field_deserializer({ type = field.type.from, index = i + 1 }, "key" .. i),
+				value_deserializer = print_field_deserializer({ type = field.type.to, index = i + 1 }, "value" .. i)
 			}
 		end
 		return ""

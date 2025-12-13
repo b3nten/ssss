@@ -19,6 +19,7 @@ func Run(ctx context.Context, cli *cli.Command) error {
 	input := cli.String("input")
 	output := cli.String("output")
 	lang := cli.String("lang")
+	debug := cli.Bool("debug")
 
 	if input == "" || output == "" || lang == "" {
 		return fmt.Errorf("input, output, and lang parameters are required")
@@ -29,7 +30,11 @@ func Run(ctx context.Context, cli *cli.Command) error {
 		return fmt.Errorf("error reading schema file '%s': %v", input, err)
 	}
 
-	schema, err := parser.GenerateSchema(string(inputFile), getFileNameFromPath(input))
+	if debug {
+		fmt.Println(color.YellowString("Debug mode enabled"))
+	}
+
+	schema, err := parser.GenerateSchema(string(inputFile), getFileNameFromPath(input), debug)
 
 	if err != nil {
 		return fmt.Errorf("error parsing schema file '%s': %v", input, err)
@@ -45,17 +50,17 @@ func Run(ctx context.Context, cli *cli.Command) error {
 
 	switch strings.ToLower(file.Lang) {
 	case "go":
-		err = generateGo(file)
+		err = generateGo(file, debug)
 	case "js":
-		err = generateJS(file)
+		err = generateJS(file, debug)
 	case "c#":
-		err = generateCSharp(file)
+		err = generateCSharp(file, debug)
 	default:
 		codeGenScript, err := os.ReadFile(file.Lang)
 		if err != nil {
 			return fmt.Errorf("Error reading templater file '%s': %v\n", file.Lang, err)
 		}
-		err = generateCustom(file, string(codeGenScript))
+		err = generateCustom(file, string(codeGenScript), debug)
 	}
 
 	if err != nil {
@@ -71,6 +76,13 @@ func Run(ctx context.Context, cli *cli.Command) error {
 		err = os.WriteFile(outputPath, []byte(generatedCode), 0644)
 		if err != nil {
 			return fmt.Errorf("Error writing to output file '%s': %v\n", outputPath, err)
+		}
+	}
+
+	if debug {
+		fmt.Println(color.YellowString("Generated files:"))
+		for filename := range file.Generated {
+			fmt.Println(color.YellowString(" - %s", filename))
 		}
 	}
 

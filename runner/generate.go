@@ -9,20 +9,20 @@ import (
 	lua "github.com/yuin/gopher-lua"
 )
 
-func generateGo(file *SchemaFile) error {
-	return generateCustom(file, writers.GoTemplate)
+func generateGo(file *SchemaFile, debug bool) error {
+	return generateCustom(file, writers.GoTemplate, debug)
 }
 
-func generateJS(file *SchemaFile) error {
-	return generateCustom(file, writers.JavascriptTemplate)
+func generateJS(file *SchemaFile, debug bool) error {
+	return generateCustom(file, writers.JavascriptTemplate, debug)
 }
 
-func generateCSharp(file *SchemaFile) error {
-	return generateCustom(file, writers.CSharpTemplate)
+func generateCSharp(file *SchemaFile, debug bool) error {
+	return generateCustom(file, writers.CSharpTemplate, debug)
 }
 
-func generateCustom(file *SchemaFile, templater string) error {
-	L := parser.CreateLuaState(file.Schema)
+func generateCustom(file *SchemaFile, templater string, debug bool) error {
+	L := parser.CreateLuaState(file.Schema, debug)
 	defer L.Close()
 	if err := L.DoString(templater); err != nil {
 		panic(err)

@@ -35,7 +35,10 @@ function str_block(args)
 end
 
 function pascal_case(str)
-	local result = str:gsub("[%w]+", function(word)
+	local result = str:gsub("([^%w])", " ")
+	               :gsub("(%u)", " %1")
+	               :gsub("^%s+", "")
+	result = result:gsub("[%w]+", function(word)
 		return word:sub(1, 1):upper() .. word:sub(2):lower()
 	end)
 	return (result:gsub("[^%w]", ""))

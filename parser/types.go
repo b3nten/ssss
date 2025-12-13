@@ -18,7 +18,6 @@ type Field struct {
 
 type StructType struct {
 	ID     uint16
-	UUID   string
 	Name   string
 	Fields []Field
 }

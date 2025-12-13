@@ -32,6 +32,11 @@ func main() {
 				Required: true,
 				Aliases:  []string{"l", "generator"},
 			},
+			&cli.BoolFlag{
+				Name:    "debug",
+				Usage:   "enable debug output",
+				Aliases: []string{"d"},
+			},
 		},
 		Action: runner.Run,
 	}

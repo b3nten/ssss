@@ -1,7 +1,7 @@
 {
 	"diagnostics.globals": [
-		"sprintf", "Schema", "Output", "str_block", "pascal_case",
-		"list", "struct", "str", "bool",
+		"sprintf", "Schema", "Output", "str_block", "pascal_case", "version",
+		"list", "struct", "map", "str", "bool",
 		"int8", "int16", "int32", "int64",
 		"uint8", "uint16","uint32", "uint64",
 		"f32", "f64"

@@ -7,17 +7,23 @@ import (
 	"math"
 )
 
-		type Bar struct {
-						Baz *int32
+		type Stats struct {
+						Health *int32
+							Mana *int32
+							Stamina *int32
+							Critchance *float32
+							Critdamage *float32
+							Resistances *				map[string]int16
+			
 			
 		}
 
-		func (Bar) TypeId() uint16 {
-			return 32026
+		func (Stats) TypeId() uint16 {
+			return 36492
 		}
 
-				func (s *Bar) serialize(b *ByteWriter) error {
-			err := b.WriteTypeId(32026)
+				func (s *Stats) serialize(b *ByteWriter) error {
+			err := b.WriteTypeId(36492)
 			if err != nil {
 				return err
 			}
@@ -26,88 +32,62 @@ import (
 				return err
 			}
 			startLen := b.Len()
-						  if s.Baz != nil {
-				  err = b.WriteFieldId(1)
+						  if s.Health != nil {
+				  err = b.WriteFieldId(0)
 				  if err != nil {
 					  return err
 				  }
-									err = b.Write(s.Baz)
+									err = b.Write(s.Health)
 				if err != nil {
 					return err
 				}
 			
 			  }
-		  
-			structLen := b.Len() - startLen
-			err = b.WriteLengthAt(structLen, startLen-4)
-			return err
-		}
-	
-				func (s *Bar) deserialize(br *ByteReader) error {
-			typeId, err := br.ReadTypeId()
-			if err != nil || typeId != 32026 {
-				return fmt.Errorf("unexpected type id: expected %d, got %d", 32026, typeId)
-			}
-			length, err := br.ReadLength()
-			if err != nil || length > br.Len() || length > math.MaxInt32 {
-				return fmt.Errorf("invalid struct length: %d", length)
-			}
-			seenFields := make(map[uint16]bool)
-			startLen := br.Len()
-			for br.Len() > startLen-int(length) {
-				fieldId, err := br.ReadFieldId()
-				if err != nil || seenFields[fieldId] {
-					return fmt.Errorf("error reading field id or duplicate field id: %d", fieldId)
-				}
-				if fieldId > 1 {
-					return nil
-				}
-				seenFields[fieldId] = true
-				switch fieldId {
-									case 1:
-					 err = br.Read(s.Baz) 
-				
-				}
+		  			  if s.Mana != nil {
+				  err = b.WriteFieldId(1)
+				  if err != nil {
+					  return err
+				  }
+									err = b.Write(s.Mana)
 				if err != nil {
 					return err
 				}
-			}
-			return nil
-		}
-	
-	
-		type Foo struct {
-						Lst2 *				[]				[]string
 			
+			  }
+		  			  if s.Stamina != nil {
+				  err = b.WriteFieldId(2)
+				  if err != nil {
+					  return err
+				  }
+									err = b.Write(s.Stamina)
+				if err != nil {
+					return err
+				}
 			
-							M *				map[int32]string
+			  }
+		  			  if s.Critchance != nil {
+				  err = b.WriteFieldId(3)
+				  if err != nil {
+					  return err
+				  }
+									err = b.Write(s.Critchance)
+				if err != nil {
+					return err
+				}
 			
-							X *				map[string]				map[int32]bool
+			  }
+		  			  if s.Critdamage != nil {
+				  err = b.WriteFieldId(4)
+				  if err != nil {
+					  return err
+				  }
+									err = b.Write(s.Critdamage)
+				if err != nil {
+					return err
+				}
 			
-			
-							F *float32
-							B *bool
-							Bar *Bar
-							Lst *				[]int32
-			
-			
-		}
-
-		func (Foo) TypeId() uint16 {
-			return 32471
-		}
-
-				func (s *Foo) serialize(b *ByteWriter) error {
-			err := b.WriteTypeId(32471)
-			if err != nil {
-				return err
-			}
-			err = b.WriteLength(0)
-			if err != nil {
-				return err
-			}
-			startLen := b.Len()
-						  if s.Lst2 != nil {
+			  }
+		  			  if s.Resistances != nil {
 				  err = b.WriteFieldId(5)
 				  if err != nil {
 					  return err
@@ -117,44 +97,7 @@ import (
 					return err
 				}
 				startLen0 := b.Len()
-				for _, item0 := range *s.Lst2 {
-									err = b.WriteLength(0)
-				if err != nil {
-					return err
-				}
-				startLen1 := b.Len()
-				for _, item1 := range item0 {
-									err = b.Write(item1)
-				if err != nil {
-					return err
-				}
-			
-				}
-				listLen1 := b.Len() - startLen1
-				err = b.WriteLengthAt(listLen1, startLen1-4)
-				if err != nil {
-					return err
-				}
-			
-				}
-				listLen0 := b.Len() - startLen0
-				err = b.WriteLengthAt(listLen0, startLen0-4)
-				if err != nil {
-					return err
-				}
-			
-			  }
-		  			  if s.M != nil {
-				  err = b.WriteFieldId(6)
-				  if err != nil {
-					  return err
-				  }
-									err = b.WriteLength(0)
-				if err != nil {
-					return err
-				}
-				startLen0 := b.Len()
-				for key0, value0 := range *s.M {
+				for key0, value0 := range *s.Resistances {
 									err = b.Write(key0)
 				if err != nil {
 					return err
@@ -173,8 +116,147 @@ import (
 				}
 			
 			  }
-		  			  if s.X != nil {
-				  err = b.WriteFieldId(7)
+		  
+			structLen := b.Len() - startLen
+			err = b.WriteLengthAt(structLen, startLen-4)
+			return err
+		}
+	
+				func (s *Stats) deserialize(br *ByteReader) error {
+			typeId, err := br.ReadTypeId()
+			if err != nil || typeId != 36492 {
+				return fmt.Errorf("unexpected type id: expected %d, got %d", 36492, typeId)
+			}
+			length, err := br.ReadLength()
+			if err != nil || length > br.Len() || length > math.MaxInt32 {
+				return fmt.Errorf("invalid struct length: %d", length)
+			}
+			seenFields := make(map[uint16]bool)
+			startLen := br.Len()
+			for br.Len() > startLen-int(length) {
+				fieldId, err := br.ReadFieldId()
+				if err != nil || seenFields[fieldId] {
+					return fmt.Errorf("error reading field id or duplicate field id: %d", fieldId)
+				}
+				if fieldId > 5 {
+					return nil
+				}
+				seenFields[fieldId] = true
+				switch fieldId {
+									case 0:
+					 err = br.Read(s.Health) 
+								case 1:
+					 err = br.Read(s.Mana) 
+								case 2:
+					 err = br.Read(s.Stamina) 
+								case 3:
+					 err = br.Read(s.Critchance) 
+								case 4:
+					 err = br.Read(s.Critdamage) 
+								case 5:
+									mapLen0, err := br.ReadLength()
+				if err != nil || mapLen0 < 0 || mapLen0 > br.Len() {
+					return fmt.Errorf("invalid map length: %d", mapLen0)
+				}
+				startLen0 := br.Len()
+				s.Resistances = &map[string]int16{}
+				for br.Len() > startLen0-mapLen0 {
+					var key0 *string
+					 err = br.Read(key0) 
+					if err != nil {
+						return err
+					}
+					var value0 *int16
+					 err = br.Read(value0) 
+					if err != nil {
+						return err
+					}
+					(*s.Resistances)[*key0] = *value0
+				}
+			
+				
+				}
+				if err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	
+	
+		type Item struct {
+						Name *string
+							Rarity *uint8
+							Weight *float32
+							Isquestitem *bool
+							Tags *				[]string
+			
+							Extradata *				map[string]string
+			
+							Id *uint32
+			
+		}
+
+		func (Item) TypeId() uint16 {
+			return 32774
+		}
+
+				func (s *Item) serialize(b *ByteWriter) error {
+			err := b.WriteTypeId(32774)
+			if err != nil {
+				return err
+			}
+			err = b.WriteLength(0)
+			if err != nil {
+				return err
+			}
+			startLen := b.Len()
+						  if s.Name != nil {
+				  err = b.WriteFieldId(1)
+				  if err != nil {
+					  return err
+				  }
+									err = b.Write(s.Name)
+				if err != nil {
+					return err
+				}
+			
+			  }
+		  			  if s.Rarity != nil {
+				  err = b.WriteFieldId(2)
+				  if err != nil {
+					  return err
+				  }
+									err = b.Write(s.Rarity)
+				if err != nil {
+					return err
+				}
+			
+			  }
+		  			  if s.Weight != nil {
+				  err = b.WriteFieldId(3)
+				  if err != nil {
+					  return err
+				  }
+									err = b.Write(s.Weight)
+				if err != nil {
+					return err
+				}
+			
+			  }
+		  			  if s.Isquestitem != nil {
+				  err = b.WriteFieldId(4)
+				  if err != nil {
+					  return err
+				  }
+									err = b.Write(s.Isquestitem)
+				if err != nil {
+					return err
+				}
+			
+			  }
+		  			  if s.Tags != nil {
+				  err = b.WriteFieldId(5)
 				  if err != nil {
 					  return err
 				  }
@@ -183,7 +265,561 @@ import (
 					return err
 				}
 				startLen0 := b.Len()
-				for key0, value0 := range *s.X {
+				for _, item0 := range *s.Tags {
+									err = b.Write(item0)
+				if err != nil {
+					return err
+				}
+			
+				}
+				listLen0 := b.Len() - startLen0
+				err = b.WriteLengthAt(listLen0, startLen0-4)
+				if err != nil {
+					return err
+				}
+			
+			  }
+		  			  if s.Extradata != nil {
+				  err = b.WriteFieldId(6)
+				  if err != nil {
+					  return err
+				  }
+									err = b.WriteLength(0)
+				if err != nil {
+					return err
+				}
+				startLen0 := b.Len()
+				for key0, value0 := range *s.Extradata {
+									err = b.Write(key0)
+				if err != nil {
+					return err
+				}
+			
+									err = b.Write(value0)
+				if err != nil {
+					return err
+				}
+			
+				}
+				mapLen0 := b.Len() - startLen0
+				err = b.WriteLengthAt(mapLen0, startLen0-4)
+				if err != nil {
+					return err
+				}
+			
+			  }
+		  			  if s.Id != nil {
+				  err = b.WriteFieldId(0)
+				  if err != nil {
+					  return err
+				  }
+									err = b.Write(s.Id)
+				if err != nil {
+					return err
+				}
+			
+			  }
+		  
+			structLen := b.Len() - startLen
+			err = b.WriteLengthAt(structLen, startLen-4)
+			return err
+		}
+	
+				func (s *Item) deserialize(br *ByteReader) error {
+			typeId, err := br.ReadTypeId()
+			if err != nil || typeId != 32774 {
+				return fmt.Errorf("unexpected type id: expected %d, got %d", 32774, typeId)
+			}
+			length, err := br.ReadLength()
+			if err != nil || length > br.Len() || length > math.MaxInt32 {
+				return fmt.Errorf("invalid struct length: %d", length)
+			}
+			seenFields := make(map[uint16]bool)
+			startLen := br.Len()
+			for br.Len() > startLen-int(length) {
+				fieldId, err := br.ReadFieldId()
+				if err != nil || seenFields[fieldId] {
+					return fmt.Errorf("error reading field id or duplicate field id: %d", fieldId)
+				}
+				if fieldId > 6 {
+					return nil
+				}
+				seenFields[fieldId] = true
+				switch fieldId {
+									case 1:
+					 err = br.Read(s.Name) 
+								case 2:
+					 err = br.Read(s.Rarity) 
+								case 3:
+					 err = br.Read(s.Weight) 
+								case 4:
+					 err = br.Read(s.Isquestitem) 
+								case 5:
+									listLen0, err := br.ReadLength()
+				if err != nil || listLen0 < 0 || listLen0 > br.Len() {
+					return fmt.Errorf("invalid list length: %d", listLen0)
+				}
+				startLen0 := br.Len()
+				s.Tags = &[]string{}
+				for br.Len() > startLen0-listLen0 {
+					var item0 *string
+					 err = br.Read(item0) 
+					if err != nil {
+						return err
+					}
+					*s.Tags = append(*s.Tags, *item0)
+				}
+			
+								case 6:
+									mapLen0, err := br.ReadLength()
+				if err != nil || mapLen0 < 0 || mapLen0 > br.Len() {
+					return fmt.Errorf("invalid map length: %d", mapLen0)
+				}
+				startLen0 := br.Len()
+				s.Extradata = &map[string]string{}
+				for br.Len() > startLen0-mapLen0 {
+					var key0 *string
+					 err = br.Read(key0) 
+					if err != nil {
+						return err
+					}
+					var value0 *string
+					 err = br.Read(value0) 
+					if err != nil {
+						return err
+					}
+					(*s.Extradata)[*key0] = *value0
+				}
+			
+								case 0:
+					 err = br.Read(s.Id) 
+				
+				}
+				if err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	
+	
+		type Companion struct {
+						Name *string
+							Level *uint8
+							Bond *float32
+			
+		}
+
+		func (Companion) TypeId() uint16 {
+			return 21813
+		}
+
+				func (s *Companion) serialize(b *ByteWriter) error {
+			err := b.WriteTypeId(21813)
+			if err != nil {
+				return err
+			}
+			err = b.WriteLength(0)
+			if err != nil {
+				return err
+			}
+			startLen := b.Len()
+						  if s.Name != nil {
+				  err = b.WriteFieldId(0)
+				  if err != nil {
+					  return err
+				  }
+									err = b.Write(s.Name)
+				if err != nil {
+					return err
+				}
+			
+			  }
+		  			  if s.Level != nil {
+				  err = b.WriteFieldId(1)
+				  if err != nil {
+					  return err
+				  }
+									err = b.Write(s.Level)
+				if err != nil {
+					return err
+				}
+			
+			  }
+		  			  if s.Bond != nil {
+				  err = b.WriteFieldId(2)
+				  if err != nil {
+					  return err
+				  }
+									err = b.Write(s.Bond)
+				if err != nil {
+					return err
+				}
+			
+			  }
+		  
+			structLen := b.Len() - startLen
+			err = b.WriteLengthAt(structLen, startLen-4)
+			return err
+		}
+	
+				func (s *Companion) deserialize(br *ByteReader) error {
+			typeId, err := br.ReadTypeId()
+			if err != nil || typeId != 21813 {
+				return fmt.Errorf("unexpected type id: expected %d, got %d", 21813, typeId)
+			}
+			length, err := br.ReadLength()
+			if err != nil || length > br.Len() || length > math.MaxInt32 {
+				return fmt.Errorf("invalid struct length: %d", length)
+			}
+			seenFields := make(map[uint16]bool)
+			startLen := br.Len()
+			for br.Len() > startLen-int(length) {
+				fieldId, err := br.ReadFieldId()
+				if err != nil || seenFields[fieldId] {
+					return fmt.Errorf("error reading field id or duplicate field id: %d", fieldId)
+				}
+				if fieldId > 2 {
+					return nil
+				}
+				seenFields[fieldId] = true
+				switch fieldId {
+									case 0:
+					 err = br.Read(s.Name) 
+								case 1:
+					 err = br.Read(s.Level) 
+								case 2:
+					 err = br.Read(s.Bond) 
+				
+				}
+				if err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	
+	
+		type Loot struct {
+						Basechance *float32
+							Modifiers *				map[string]float32
+			
+			
+		}
+
+		func (Loot) TypeId() uint16 {
+			return 983
+		}
+
+				func (s *Loot) serialize(b *ByteWriter) error {
+			err := b.WriteTypeId(983)
+			if err != nil {
+				return err
+			}
+			err = b.WriteLength(0)
+			if err != nil {
+				return err
+			}
+			startLen := b.Len()
+						  if s.Basechance != nil {
+				  err = b.WriteFieldId(0)
+				  if err != nil {
+					  return err
+				  }
+									err = b.Write(s.Basechance)
+				if err != nil {
+					return err
+				}
+			
+			  }
+		  			  if s.Modifiers != nil {
+				  err = b.WriteFieldId(1)
+				  if err != nil {
+					  return err
+				  }
+									err = b.WriteLength(0)
+				if err != nil {
+					return err
+				}
+				startLen0 := b.Len()
+				for key0, value0 := range *s.Modifiers {
+									err = b.Write(key0)
+				if err != nil {
+					return err
+				}
+			
+									err = b.Write(value0)
+				if err != nil {
+					return err
+				}
+			
+				}
+				mapLen0 := b.Len() - startLen0
+				err = b.WriteLengthAt(mapLen0, startLen0-4)
+				if err != nil {
+					return err
+				}
+			
+			  }
+		  
+			structLen := b.Len() - startLen
+			err = b.WriteLengthAt(structLen, startLen-4)
+			return err
+		}
+	
+				func (s *Loot) deserialize(br *ByteReader) error {
+			typeId, err := br.ReadTypeId()
+			if err != nil || typeId != 983 {
+				return fmt.Errorf("unexpected type id: expected %d, got %d", 983, typeId)
+			}
+			length, err := br.ReadLength()
+			if err != nil || length > br.Len() || length > math.MaxInt32 {
+				return fmt.Errorf("invalid struct length: %d", length)
+			}
+			seenFields := make(map[uint16]bool)
+			startLen := br.Len()
+			for br.Len() > startLen-int(length) {
+				fieldId, err := br.ReadFieldId()
+				if err != nil || seenFields[fieldId] {
+					return fmt.Errorf("error reading field id or duplicate field id: %d", fieldId)
+				}
+				if fieldId > 1 {
+					return nil
+				}
+				seenFields[fieldId] = true
+				switch fieldId {
+									case 0:
+					 err = br.Read(s.Basechance) 
+								case 1:
+									mapLen0, err := br.ReadLength()
+				if err != nil || mapLen0 < 0 || mapLen0 > br.Len() {
+					return fmt.Errorf("invalid map length: %d", mapLen0)
+				}
+				startLen0 := br.Len()
+				s.Modifiers = &map[string]float32{}
+				for br.Len() > startLen0-mapLen0 {
+					var key0 *string
+					 err = br.Read(key0) 
+					if err != nil {
+						return err
+					}
+					var value0 *float32
+					 err = br.Read(value0) 
+					if err != nil {
+						return err
+					}
+					(*s.Modifiers)[*key0] = *value0
+				}
+			
+				
+				}
+				if err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	
+	
+		type Lootentry struct {
+						Itemid *uint32
+							Minqty *uint8
+							Maxqty *uint8
+							Conditions *				map[string]bool
+			
+			
+		}
+
+		func (Lootentry) TypeId() uint16 {
+			return 305
+		}
+
+				func (s *Lootentry) serialize(b *ByteWriter) error {
+			err := b.WriteTypeId(305)
+			if err != nil {
+				return err
+			}
+			err = b.WriteLength(0)
+			if err != nil {
+				return err
+			}
+			startLen := b.Len()
+						  if s.Itemid != nil {
+				  err = b.WriteFieldId(0)
+				  if err != nil {
+					  return err
+				  }
+									err = b.Write(s.Itemid)
+				if err != nil {
+					return err
+				}
+			
+			  }
+		  			  if s.Minqty != nil {
+				  err = b.WriteFieldId(1)
+				  if err != nil {
+					  return err
+				  }
+									err = b.Write(s.Minqty)
+				if err != nil {
+					return err
+				}
+			
+			  }
+		  			  if s.Maxqty != nil {
+				  err = b.WriteFieldId(2)
+				  if err != nil {
+					  return err
+				  }
+									err = b.Write(s.Maxqty)
+				if err != nil {
+					return err
+				}
+			
+			  }
+		  			  if s.Conditions != nil {
+				  err = b.WriteFieldId(3)
+				  if err != nil {
+					  return err
+				  }
+									err = b.WriteLength(0)
+				if err != nil {
+					return err
+				}
+				startLen0 := b.Len()
+				for key0, value0 := range *s.Conditions {
+									err = b.Write(key0)
+				if err != nil {
+					return err
+				}
+			
+									err = b.Write(value0)
+				if err != nil {
+					return err
+				}
+			
+				}
+				mapLen0 := b.Len() - startLen0
+				err = b.WriteLengthAt(mapLen0, startLen0-4)
+				if err != nil {
+					return err
+				}
+			
+			  }
+		  
+			structLen := b.Len() - startLen
+			err = b.WriteLengthAt(structLen, startLen-4)
+			return err
+		}
+	
+				func (s *Lootentry) deserialize(br *ByteReader) error {
+			typeId, err := br.ReadTypeId()
+			if err != nil || typeId != 305 {
+				return fmt.Errorf("unexpected type id: expected %d, got %d", 305, typeId)
+			}
+			length, err := br.ReadLength()
+			if err != nil || length > br.Len() || length > math.MaxInt32 {
+				return fmt.Errorf("invalid struct length: %d", length)
+			}
+			seenFields := make(map[uint16]bool)
+			startLen := br.Len()
+			for br.Len() > startLen-int(length) {
+				fieldId, err := br.ReadFieldId()
+				if err != nil || seenFields[fieldId] {
+					return fmt.Errorf("error reading field id or duplicate field id: %d", fieldId)
+				}
+				if fieldId > 3 {
+					return nil
+				}
+				seenFields[fieldId] = true
+				switch fieldId {
+									case 0:
+					 err = br.Read(s.Itemid) 
+								case 1:
+					 err = br.Read(s.Minqty) 
+								case 2:
+					 err = br.Read(s.Maxqty) 
+								case 3:
+									mapLen0, err := br.ReadLength()
+				if err != nil || mapLen0 < 0 || mapLen0 > br.Len() {
+					return fmt.Errorf("invalid map length: %d", mapLen0)
+				}
+				startLen0 := br.Len()
+				s.Conditions = &map[string]bool{}
+				for br.Len() > startLen0-mapLen0 {
+					var key0 *string
+					 err = br.Read(key0) 
+					if err != nil {
+						return err
+					}
+					var value0 *bool
+					 err = br.Read(value0) 
+					if err != nil {
+						return err
+					}
+					(*s.Conditions)[*key0] = *value0
+				}
+			
+				
+				}
+				if err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	
+	
+		type World struct {
+						Gravity *float64
+							Zonedata *				map[string]				map[string]uint32
+			
+			
+							Systemflags *				map[string]bool
+			
+							Loottables *				map[string]Loot
+			
+							Worldname *string
+							Seed *uint64
+			
+		}
+
+		func (World) TypeId() uint16 {
+			return 60723
+		}
+
+				func (s *World) serialize(b *ByteWriter) error {
+			err := b.WriteTypeId(60723)
+			if err != nil {
+				return err
+			}
+			err = b.WriteLength(0)
+			if err != nil {
+				return err
+			}
+			startLen := b.Len()
+						  if s.Gravity != nil {
+				  err = b.WriteFieldId(2)
+				  if err != nil {
+					  return err
+				  }
+									err = b.Write(s.Gravity)
+				if err != nil {
+					return err
+				}
+			
+			  }
+		  			  if s.Zonedata != nil {
+				  err = b.WriteFieldId(5)
+				  if err != nil {
+					  return err
+				  }
+									err = b.WriteLength(0)
+				if err != nil {
+					return err
+				}
+				startLen0 := b.Len()
+				for key0, value0 := range *s.Zonedata {
 									err = b.Write(key0)
 				if err != nil {
 					return err
@@ -220,41 +856,8 @@ import (
 				}
 			
 			  }
-		  			  if s.F != nil {
-				  err = b.WriteFieldId(1)
-				  if err != nil {
-					  return err
-				  }
-									err = b.Write(s.F)
-				if err != nil {
-					return err
-				}
-			
-			  }
-		  			  if s.B != nil {
-				  err = b.WriteFieldId(2)
-				  if err != nil {
-					  return err
-				  }
-									err = b.Write(s.B)
-				if err != nil {
-					return err
-				}
-			
-			  }
-		  			  if s.Bar != nil {
-				  err = b.WriteFieldId(3)
-				  if err != nil {
-					  return err
-				  }
-									err = s.Bar.serialize(b)
-				if err != nil {
-					return err
-				}
-			
-			  }
-		  			  if s.Lst != nil {
-				  err = b.WriteFieldId(4)
+		  			  if s.Systemflags != nil {
+				  err = b.WriteFieldId(6)
 				  if err != nil {
 					  return err
 				  }
@@ -263,15 +866,71 @@ import (
 					return err
 				}
 				startLen0 := b.Len()
-				for _, item0 := range *s.Lst {
-									err = b.Write(item0)
+				for key0, value0 := range *s.Systemflags {
+									err = b.Write(key0)
+				if err != nil {
+					return err
+				}
+			
+									err = b.Write(value0)
 				if err != nil {
 					return err
 				}
 			
 				}
-				listLen0 := b.Len() - startLen0
-				err = b.WriteLengthAt(listLen0, startLen0-4)
+				mapLen0 := b.Len() - startLen0
+				err = b.WriteLengthAt(mapLen0, startLen0-4)
+				if err != nil {
+					return err
+				}
+			
+			  }
+		  			  if s.Loottables != nil {
+				  err = b.WriteFieldId(7)
+				  if err != nil {
+					  return err
+				  }
+									err = b.WriteLength(0)
+				if err != nil {
+					return err
+				}
+				startLen0 := b.Len()
+				for key0, value0 := range *s.Loottables {
+									err = b.Write(key0)
+				if err != nil {
+					return err
+				}
+			
+									err = value0.serialize(b)
+				if err != nil {
+					return err
+				}
+			
+				}
+				mapLen0 := b.Len() - startLen0
+				err = b.WriteLengthAt(mapLen0, startLen0-4)
+				if err != nil {
+					return err
+				}
+			
+			  }
+		  			  if s.Worldname != nil {
+				  err = b.WriteFieldId(0)
+				  if err != nil {
+					  return err
+				  }
+									err = b.Write(s.Worldname)
+				if err != nil {
+					return err
+				}
+			
+			  }
+		  			  if s.Seed != nil {
+				  err = b.WriteFieldId(1)
+				  if err != nil {
+					  return err
+				  }
+									err = b.Write(s.Seed)
 				if err != nil {
 					return err
 				}
@@ -283,10 +942,10 @@ import (
 			return err
 		}
 	
-				func (s *Foo) deserialize(br *ByteReader) error {
+				func (s *World) deserialize(br *ByteReader) error {
 			typeId, err := br.ReadTypeId()
-			if err != nil || typeId != 32471 {
-				return fmt.Errorf("unexpected type id: expected %d, got %d", 32471, typeId)
+			if err != nil || typeId != 60723 {
+				return fmt.Errorf("unexpected type id: expected %d, got %d", 60723, typeId)
 			}
 			length, err := br.ReadLength()
 			if err != nil || length > br.Len() || length > math.MaxInt32 {
@@ -304,84 +963,35 @@ import (
 				}
 				seenFields[fieldId] = true
 				switch fieldId {
-									case 5:
-									listLen0, err := br.ReadLength()
-				if err != nil || listLen0 < 0 || listLen0 > br.Len() {
-					return fmt.Errorf("invalid list length: %d", listLen0)
-				}
-				startLen0 := br.Len()
-				s.Lst2 = &[][]string{}
-				for br.Len() > startLen0-listLen0 {
-					var item0 *[]string
-									listLen1, err := br.ReadLength()
-				if err != nil || listLen1 < 0 || listLen1 > br.Len() {
-					return fmt.Errorf("invalid list length: %d", listLen1)
-				}
-				startLen1 := br.Len()
-				item0 = &[]string{}
-				for br.Len() > startLen1-listLen1 {
-					var item1 *string
-					 err = br.Read(item1) 
-					if err != nil {
-						return err
-					}
-					*item0 = append(*item0, *item1)
-				}
-			
-					if err != nil {
-						return err
-					}
-					*s.Lst2 = append(*s.Lst2, *item0)
-				}
-			
-								case 6:
+									case 2:
+					 err = br.Read(s.Gravity) 
+								case 5:
 									mapLen0, err := br.ReadLength()
 				if err != nil || mapLen0 < 0 || mapLen0 > br.Len() {
 					return fmt.Errorf("invalid map length: %d", mapLen0)
 				}
 				startLen0 := br.Len()
-				s.M = &map[int32]string{}
-				for br.Len() > startLen0-mapLen0 {
-					var key0 *int32
-					 err = br.Read(key0) 
-					if err != nil {
-						return err
-					}
-					var value0 *string
-					 err = br.Read(value0) 
-					if err != nil {
-						return err
-					}
-					(*s.M)[*key0] = *value0
-				}
-			
-								case 7:
-									mapLen0, err := br.ReadLength()
-				if err != nil || mapLen0 < 0 || mapLen0 > br.Len() {
-					return fmt.Errorf("invalid map length: %d", mapLen0)
-				}
-				startLen0 := br.Len()
-				s.X = &map[string]map[int32]bool{}
+				s.Zonedata = &map[string]map[string]uint32{}
 				for br.Len() > startLen0-mapLen0 {
 					var key0 *string
 					 err = br.Read(key0) 
 					if err != nil {
 						return err
 					}
-					var value0 *map[int32]bool
+					var value0 *map[string]uint32
 									mapLen1, err := br.ReadLength()
 				if err != nil || mapLen1 < 0 || mapLen1 > br.Len() {
 					return fmt.Errorf("invalid map length: %d", mapLen1)
 				}
 				startLen1 := br.Len()
-				value0 = &map[int32]bool{}
+				value0 = &map[string]uint32{}
 				for br.Len() > startLen1-mapLen1 {
-					var key1 *int32
+					var key1 *string
 					 err = br.Read(key1) 
 					if err != nil {
 						return err
 					}
-					var value1 *bool
+					var value1 *uint32
 					 err = br.Read(value1) 
 					if err != nil {
 						return err
@@ -392,33 +1002,223 @@ import (
 					if err != nil {
 						return err
 					}
-					(*s.X)[*key0] = *value0
+					(*s.Zonedata)[*key0] = *value0
 				}
 			
-								case 1:
-					 err = br.Read(s.F) 
-								case 2:
-					 err = br.Read(s.B) 
-								case 3:
-									s.Bar = &Bar{}
-				err = s.Bar.deserialize(br)
-			
-								case 4:
-									listLen0, err := br.ReadLength()
-				if err != nil || listLen0 < 0 || listLen0 > br.Len() {
-					return fmt.Errorf("invalid list length: %d", listLen0)
+								case 6:
+									mapLen0, err := br.ReadLength()
+				if err != nil || mapLen0 < 0 || mapLen0 > br.Len() {
+					return fmt.Errorf("invalid map length: %d", mapLen0)
 				}
 				startLen0 := br.Len()
-				s.Lst = &[]int32{}
-				for br.Len() > startLen0-listLen0 {
-					var item0 *int32
-					 err = br.Read(item0) 
+				s.Systemflags = &map[string]bool{}
+				for br.Len() > startLen0-mapLen0 {
+					var key0 *string
+					 err = br.Read(key0) 
 					if err != nil {
 						return err
 					}
-					*s.Lst = append(*s.Lst, *item0)
+					var value0 *bool
+					 err = br.Read(value0) 
+					if err != nil {
+						return err
+					}
+					(*s.Systemflags)[*key0] = *value0
 				}
 			
+								case 7:
+									mapLen0, err := br.ReadLength()
+				if err != nil || mapLen0 < 0 || mapLen0 > br.Len() {
+					return fmt.Errorf("invalid map length: %d", mapLen0)
+				}
+				startLen0 := br.Len()
+				s.Loottables = &map[string]Loot{}
+				for br.Len() > startLen0-mapLen0 {
+					var key0 *string
+					 err = br.Read(key0) 
+					if err != nil {
+						return err
+					}
+					var value0 *Loot
+									value0 = &Loot{}
+				err = value0.deserialize(br)
+			
+					if err != nil {
+						return err
+					}
+					(*s.Loottables)[*key0] = *value0
+				}
+			
+								case 0:
+					 err = br.Read(s.Worldname) 
+								case 1:
+					 err = br.Read(s.Seed) 
+				
+				}
+				if err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	
+	
+		type Equipmentslot struct {
+						Slotname *string
+			
+		}
+
+		func (Equipmentslot) TypeId() uint16 {
+			return 35339
+		}
+
+				func (s *Equipmentslot) serialize(b *ByteWriter) error {
+			err := b.WriteTypeId(35339)
+			if err != nil {
+				return err
+			}
+			err = b.WriteLength(0)
+			if err != nil {
+				return err
+			}
+			startLen := b.Len()
+						  if s.Slotname != nil {
+				  err = b.WriteFieldId(0)
+				  if err != nil {
+					  return err
+				  }
+									err = b.Write(s.Slotname)
+				if err != nil {
+					return err
+				}
+			
+			  }
+		  
+			structLen := b.Len() - startLen
+			err = b.WriteLengthAt(structLen, startLen-4)
+			return err
+		}
+	
+				func (s *Equipmentslot) deserialize(br *ByteReader) error {
+			typeId, err := br.ReadTypeId()
+			if err != nil || typeId != 35339 {
+				return fmt.Errorf("unexpected type id: expected %d, got %d", 35339, typeId)
+			}
+			length, err := br.ReadLength()
+			if err != nil || length > br.Len() || length > math.MaxInt32 {
+				return fmt.Errorf("invalid struct length: %d", length)
+			}
+			seenFields := make(map[uint16]bool)
+			startLen := br.Len()
+			for br.Len() > startLen-int(length) {
+				fieldId, err := br.ReadFieldId()
+				if err != nil || seenFields[fieldId] {
+					return fmt.Errorf("error reading field id or duplicate field id: %d", fieldId)
+				}
+				if fieldId > 0 {
+					return nil
+				}
+				seenFields[fieldId] = true
+				switch fieldId {
+									case 0:
+					 err = br.Read(s.Slotname) 
+				
+				}
+				if err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	
+	
+		type Vector3 struct {
+						Z *float32
+							X *float32
+							Y *float32
+			
+		}
+
+		func (Vector3) TypeId() uint16 {
+			return 29123
+		}
+
+				func (s *Vector3) serialize(b *ByteWriter) error {
+			err := b.WriteTypeId(29123)
+			if err != nil {
+				return err
+			}
+			err = b.WriteLength(0)
+			if err != nil {
+				return err
+			}
+			startLen := b.Len()
+						  if s.Z != nil {
+				  err = b.WriteFieldId(2)
+				  if err != nil {
+					  return err
+				  }
+									err = b.Write(s.Z)
+				if err != nil {
+					return err
+				}
+			
+			  }
+		  			  if s.X != nil {
+				  err = b.WriteFieldId(0)
+				  if err != nil {
+					  return err
+				  }
+									err = b.Write(s.X)
+				if err != nil {
+					return err
+				}
+			
+			  }
+		  			  if s.Y != nil {
+				  err = b.WriteFieldId(1)
+				  if err != nil {
+					  return err
+				  }
+									err = b.Write(s.Y)
+				if err != nil {
+					return err
+				}
+			
+			  }
+		  
+			structLen := b.Len() - startLen
+			err = b.WriteLengthAt(structLen, startLen-4)
+			return err
+		}
+	
+				func (s *Vector3) deserialize(br *ByteReader) error {
+			typeId, err := br.ReadTypeId()
+			if err != nil || typeId != 29123 {
+				return fmt.Errorf("unexpected type id: expected %d, got %d", 29123, typeId)
+			}
+			length, err := br.ReadLength()
+			if err != nil || length > br.Len() || length > math.MaxInt32 {
+				return fmt.Errorf("invalid struct length: %d", length)
+			}
+			seenFields := make(map[uint16]bool)
+			startLen := br.Len()
+			for br.Len() > startLen-int(length) {
+				fieldId, err := br.ReadFieldId()
+				if err != nil || seenFields[fieldId] {
+					return fmt.Errorf("error reading field id or duplicate field id: %d", fieldId)
+				}
+				if fieldId > 2 {
+					return nil
+				}
+				seenFields[fieldId] = true
+				switch fieldId {
+									case 2:
+					 err = br.Read(s.Z) 
+								case 0:
+					 err = br.Read(s.X) 
+								case 1:
+					 err = br.Read(s.Y) 
 				
 				}
 				if err != nil {
@@ -458,20 +1258,62 @@ func DeserializeBytes(data []byte) (value Serializable, typeID uint16, err error
 		return nil, 0, err
 	}
 	switch typeID {
-					case 32026:
-				s := &Bar{}
+					case 36492:
+				s := &Stats{}
 				err = s.deserialize(br)
 				if err != nil {
 					return nil, 0, err
 				}
-				return s, 32026, nil
-					case 32471:
-				s := &Foo{}
+				return s, 36492, nil
+					case 32774:
+				s := &Item{}
 				err = s.deserialize(br)
 				if err != nil {
 					return nil, 0, err
 				}
-				return s, 32471, nil
+				return s, 32774, nil
+					case 21813:
+				s := &Companion{}
+				err = s.deserialize(br)
+				if err != nil {
+					return nil, 0, err
+				}
+				return s, 21813, nil
+					case 983:
+				s := &Loot{}
+				err = s.deserialize(br)
+				if err != nil {
+					return nil, 0, err
+				}
+				return s, 983, nil
+					case 305:
+				s := &Lootentry{}
+				err = s.deserialize(br)
+				if err != nil {
+					return nil, 0, err
+				}
+				return s, 305, nil
+					case 60723:
+				s := &World{}
+				err = s.deserialize(br)
+				if err != nil {
+					return nil, 0, err
+				}
+				return s, 60723, nil
+					case 35339:
+				s := &Equipmentslot{}
+				err = s.deserialize(br)
+				if err != nil {
+					return nil, 0, err
+				}
+				return s, 35339, nil
+					case 29123:
+				s := &Vector3{}
+				err = s.deserialize(br)
+				if err != nil {
+					return nil, 0, err
+				}
+				return s, 29123, nil
 		
 		default:
 			return nil, 0, fmt.Errorf("unknown type id: %d", typeID)

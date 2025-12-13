@@ -1,28 +1,22 @@
-local function uuid()
-	local template = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'
-	return string.gsub(template, '[xy]', function(c)
-		local v = (c == 'x') and math.random(0, 0xf) or math.random(8, 0xb)
-		return string.format('%x', v)
-	end)
-end
-
 local function make_type(base_type)
-	local result = {
-		metadata = {},
-	}
-	for k, v in pairs(base_type) do
-		result[k] = v
-	end
-	return setmetatable(result, {
+	return setmetatable(base_type, {
 		__call = function(self, metadata)
-			for k, v in pairs(metadata) do
-				self.metadata[k] = v
+			local new = { metadata = {} }
+			for k, v in pairs(self) do
+				new[k] = v
 			end
-			return result
+			for k, v in pairs(metadata) do
+				new.metadata[k] = v
+			end
+			return new
 		end,
 		__index = function(self, key)
-			self.metadata.id = key
-			return self
+			local new = { metadata = {} }
+			for k, v in pairs(self) do
+				new[k] = v
+			end
+			new.metadata.id = key
+			return new
 		end,
 	})
 end
@@ -52,8 +46,7 @@ function struct(fields)
 	local s = {
 		type = "struct",
 		fields = fields,
-		uuid = uuid(),
-		metadata = {},
+		metadata = { name = nil },
 	}
 	return setmetatable(s, {
 		__call = function(self, metadata)
@@ -63,8 +56,34 @@ function struct(fields)
 			return self
 		end,
 		__index = function(self, key)
-			self.metadata.id = key
-			return self
+			local new = {}
+			for k, v in pairs(self) do
+				new[k] = v
+			end
+			new.metadata.id = key
+			return new
 		end,
 	})
 end
+
+__Structs = {}
+
+setmetatable(_G, {
+    __index = function(t, key)
+        if __Structs[key] then
+						return __Structs[key]
+				else
+						return rawget(t, key)
+				end
+    end,
+    __newindex = function(t, key, val)
+        if type(val) == "table" and val.type == "struct" then
+            if val.metadata.name == nil then
+                val.metadata.name = key
+            end
+            __Structs[key] = val
+				else
+						rawset(t, key, val)
+        end
+    end
+})
