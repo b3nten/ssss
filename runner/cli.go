@@ -86,7 +86,7 @@ func Run(ctx context.Context, cli *cli.Command) error {
 		}
 	}
 
-	green := color.GreenString("Successfully generated schema `%s` to dir `%s`", getFileNameFromPath(file.Input), file.Output)
+	green := color.GreenString("Successfully generated schema `%s` to dir `%s` for %s", getFileNameFromPath(file.Input), file.Output, file.Lang)
 	fmt.Println(green)
 
 	return nil
