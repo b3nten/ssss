@@ -355,15 +355,15 @@ class Program
 
             try
 						{
-								var csBytes = File.ReadAllBytes("test/csharp.bin");
-								var csWorld = new World().Deserialize(csBytes);
-								var result = compareLogic.Compare(newWorld, csWorld);
-								if (result.AreEqual) Console.WriteLine("C# -> C# ✅");
-								else Console.WriteLine($"C# -> C# 💀 {result.DifferencesString}");
+								var goBytes = File.ReadAllBytes("test/go.bin");
+								var goWorld = new World().Deserialize(goBytes);
+								var result = compareLogic.Compare(newWorld, goWorld);
+								if (result.AreEqual) Console.WriteLine("Go -> C# ✅");
+								else Console.WriteLine($"Go -> C# 💀 {result.DifferencesString}");
 						}
 						catch (Exception e)
 						{
-								Console.WriteLine($"C# -> C# 💀 {e.Message}");
+								Console.WriteLine($"Go -> C# 💀 {e.Message}");
 						}
         }
     }
