@@ -41,6 +41,8 @@ local uses_value = {
 	bool = true,
 }
 
+local globalIdx = 0
+
 local function cs_type(field_type)
 	if field_type.kind == "primitive" then
 		return cstype_map[field_type.name]
@@ -61,12 +63,14 @@ end
 local function print_field_serialization(name, field)
 	if field.type.kind == "primitive" then
 		if field.type.name == "string" then
+			globalIdx = globalIdx + 1
 			return str_block {
 				fname = name,
+				counter = globalIdx
 			} [[
-				var bytes = System.Text.Encoding.UTF8.GetBytes(${fname});
-				w.Write((uint)bytes.Length);
-				w.Write(bytes);
+				var bytes${counter} = System.Text.Encoding.UTF8.GetBytes(${fname});
+				w.Write((uint)bytes${counter}.Length);
+				w.Write(bytes${counter});
 			]]
 		end
 		return str_block {
@@ -163,13 +167,15 @@ end
 local function print_field_deserialization(name, field)
 	if field.type.kind == "primitive" then
 		if field.type.name == "string" then
+			globalIdx = globalIdx + 1
 			return str_block {
 				fname = name,
+				counter = globalIdx
 			} [[
 				{
-					uint strLen = r.ReadUInt32();
-					var strBytes = r.ReadBytes((int)strLen);
-					${fname} = System.Text.Encoding.UTF8.GetString(strBytes);
+					uint strLen${counter} = r.ReadUInt32();
+					var strBytes${counter} = r.ReadBytes((int)strLen${counter});
+					${fname} = System.Text.Encoding.UTF8.GetString(strBytes${counter});
 				}
 			]]
 		end

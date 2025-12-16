@@ -1,86 +1,20 @@
-			export class Vector3 {
-				static readonly TypeID: number;
-
-				constructor(fields?: Partial<Omit<Vector3, "serialize" | "deserialize">>);
-
-									x?: number;
-									y?: number;
-									z?: number;
-				
-				deserialize(bytes: Uint8Array): Vector3;
-				serialize(): Uint8Array;
-			}
-		
-			export class Quest {
-				static readonly TypeID: number;
-
-				constructor(fields?: Partial<Omit<Quest, "serialize" | "deserialize">>);
-
-									areaLayers?: number[][][];
-									requiredPos?: Vector3[];
-									id?: number;
-									title?: string;
-									difficulty?: number;
-									rewards?: Item[];
-									prerequisites?: Quest[];
-									nextSteps?: Record<string, Quest>;
-									description?: string;
-									objectives?: Record<string, string[]>;
-				
-				deserialize(bytes: Uint8Array): Quest;
-				serialize(): Uint8Array;
-			}
-		
 			export class Character {
 				static readonly TypeID: number;
 
 				constructor(fields?: Partial<Omit<Character, "serialize" | "deserialize">>);
 
-									companions?: Record<number, Companion>;
-									skillProgress?: Record<string, number[]>;
-									id?: bigint;
+									name?: string;
 									position?: Vector3;
+									id?: bigint;
+									equipment?: Record<string, EquipmentSlot>;
+									skillProgress?: Record<string, number[]>;
 									stats?: Stats;
-									friends?: Character[];
 									arbitraryData?: Record<string, Record<string, Record<string, number>>>;
 									inventory?: Item[][];
-									name?: string;
-									equipment?: Record<string, EquipmentSlot>;
+									companions?: Record<number, Companion>;
+									friends?: Character[];
 				
 				deserialize(bytes: Uint8Array): Character;
-				serialize(): Uint8Array;
-			}
-		
-			export class Stats {
-				static readonly TypeID: number;
-
-				constructor(fields?: Partial<Omit<Stats, "serialize" | "deserialize">>);
-
-									mana?: number;
-									stamina?: number;
-									critChance?: number;
-									critDamage?: number;
-									resistances?: Record<string, number>;
-									health?: number;
-				
-				deserialize(bytes: Uint8Array): Stats;
-				serialize(): Uint8Array;
-			}
-		
-			export class Item {
-				static readonly TypeID: number;
-
-				constructor(fields?: Partial<Omit<Item, "serialize" | "deserialize">>);
-
-									extraData?: Record<string, string>;
-									id?: number;
-									name?: string;
-									rarity?: number;
-									weight?: number;
-									isQuestItem?: boolean;
-									tags?: string[];
-				
-				deserialize(bytes: Uint8Array): Item;
 				serialize(): Uint8Array;
 			}
 		
@@ -89,6 +23,7 @@
 
 				constructor(fields?: Partial<Omit<World, "serialize" | "deserialize">>);
 
+									activeQuests?: Quest[];
 									zoneData?: Record<string, Record<string, number>>;
 									systemFlags?: Record<string, boolean>;
 									lootTables?: Record<string, Loot>;
@@ -96,7 +31,6 @@
 									seed?: bigint;
 									gravity?: number;
 									players?: Character[];
-									activeQuests?: Quest[];
 				
 				deserialize(bytes: Uint8Array): World;
 				serialize(): Uint8Array;
@@ -107,24 +41,24 @@
 
 				constructor(fields?: Partial<Omit<Companion, "serialize" | "deserialize">>);
 
-									bond?: number;
 									name?: string;
 									level?: number;
+									bond?: number;
 				
 				deserialize(bytes: Uint8Array): Companion;
 				serialize(): Uint8Array;
 			}
 		
-			export class Loot {
+			export class Vector3 {
 				static readonly TypeID: number;
 
-				constructor(fields?: Partial<Omit<Loot, "serialize" | "deserialize">>);
+				constructor(fields?: Partial<Omit<Vector3, "serialize" | "deserialize">>);
 
-									baseChance?: number;
-									modifiers?: Record<string, number>;
-									entries?: LootEntry[];
+									x?: number;
+									y?: number;
+									z?: number;
 				
-				deserialize(bytes: Uint8Array): Loot;
+				deserialize(bytes: Uint8Array): Vector3;
 				serialize(): Uint8Array;
 			}
 		
@@ -142,6 +76,55 @@
 				serialize(): Uint8Array;
 			}
 		
+			export class Stats {
+				static readonly TypeID: number;
+
+				constructor(fields?: Partial<Omit<Stats, "serialize" | "deserialize">>);
+
+									health?: number;
+									mana?: number;
+									stamina?: number;
+									critChance?: number;
+									critDamage?: number;
+									resistances?: Record<string, number>;
+				
+				deserialize(bytes: Uint8Array): Stats;
+				serialize(): Uint8Array;
+			}
+		
+			export class Quest {
+				static readonly TypeID: number;
+
+				constructor(fields?: Partial<Omit<Quest, "serialize" | "deserialize">>);
+
+									id?: number;
+									difficulty?: number;
+									requiredPos?: Vector3[];
+									description?: string;
+									title?: string;
+									objectives?: Record<string, string[]>;
+									nextSteps?: Record<string, Quest>;
+									areaLayers?: number[][][];
+									rewards?: Item[];
+									prerequisites?: Quest[];
+				
+				deserialize(bytes: Uint8Array): Quest;
+				serialize(): Uint8Array;
+			}
+		
+			export class Loot {
+				static readonly TypeID: number;
+
+				constructor(fields?: Partial<Omit<Loot, "serialize" | "deserialize">>);
+
+									baseChance?: number;
+									modifiers?: Record<string, number>;
+									entries?: LootEntry[];
+				
+				deserialize(bytes: Uint8Array): Loot;
+				serialize(): Uint8Array;
+			}
+		
 			export class EquipmentSlot {
 				static readonly TypeID: number;
 
@@ -151,6 +134,23 @@
 									item?: Item;
 				
 				deserialize(bytes: Uint8Array): EquipmentSlot;
+				serialize(): Uint8Array;
+			}
+		
+			export class Item {
+				static readonly TypeID: number;
+
+				constructor(fields?: Partial<Omit<Item, "serialize" | "deserialize">>);
+
+									extraData?: Record<string, string>;
+									id?: number;
+									name?: string;
+									rarity?: number;
+									weight?: number;
+									isQuestItem?: boolean;
+									tags?: string[];
+				
+				deserialize(bytes: Uint8Array): Item;
 				serialize(): Uint8Array;
 			}
 		

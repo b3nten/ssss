@@ -1,5 +1,10 @@
 import * as Schema from "../out/schema"
-import { deepStrictEqual } from "assert"
+// @ts-ignore
+import { deepStrictEqual } from "node:assert"
+// @ts-ignore
+import * as fs from "node:fs"
+// @ts-ignore
+import * as process from "node:process"
 
 const v1 = new Schema.Vector3({ x: 1, y: 2, z: 3 })
 
@@ -196,7 +201,7 @@ const quest = new Schema.Quest({
 			},
 		})
 	},
-	areaLayers: [[[1,2,3], [4,5,6]],[[7,8,9]]],
+	areaLayers: [[[1, 2, 3], [4, 5, 6]], [[7, 8, 9]]],
 })
 
 const world = new Schema.World({
@@ -243,16 +248,35 @@ const world = new Schema.World({
 	}
 })
 
-
 const bytes = world.serialize()
 const newWorld = new Schema.World().deserialize(bytes)
 
-try
-{
+try {
 	deepStrictEqual(world, newWorld)
-	console.log("Serialization and deserialization successful, objects are equal.")
 }
-catch (e)
-{
+catch (e) {
 	console.log(e)
+}
+
+fs.writeFileSync("test/js.bin", bytes)
+
+if (process.argv.includes("--compare")) {
+	try {
+		const goBytes = fs.readFileSync("test/go.bin")
+		const goWorld = new Schema.World().deserialize(goBytes)
+		deepStrictEqual(world, goWorld)
+		console.log("Go -> JS ✅")
+	}
+	catch (e) {
+		console.log("Go -> JS 💀", e)
+	}
+	try {
+		const cSharpBytes = fs.readFileSync("test/csharp.bin")
+		const cSharpWorld = new Schema.World().deserialize(cSharpBytes)
+		deepStrictEqual(world, cSharpWorld)
+		console.log("C# -> JS ✅")
+	}
+	catch (e) {
+		console.log("C# -> JS 💀", e)
+	}
 }

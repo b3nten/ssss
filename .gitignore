@@ -3,3 +3,7 @@ build/
 tmp/
 .idea
 .vscode
+.bin
+.obj
+bin
+obj

@@ -1,12 +1,19 @@
 package main
 
 import (
-	"fmt"
-
+	"os"
+	"flag"
 	"github.com/google/go-cmp/cmp"
 
 	schema "github.com/b3nten/ssss/out"
 )
+
+var compare *bool
+
+func init() {
+	compare = flag.Bool("compare", false, "Compare serialized output to existing file")
+	flag.Parse()
+}
 
 func ptr[T any](val T) *T {
 	return &val
@@ -297,5 +304,44 @@ func main() {
 	}
 
 	result := cmp.Diff(world, newWorld)
-	fmt.Println("Diff:", result)
+
+	if result != "" {
+		panic("mismatch after serialization round-trip: " + result)
+	}
+
+	os.WriteFile("test/go.bin", serialized, os.ModePerm)
+
+	if *compare {
+		jsBytes, err := os.ReadFile("test/js.bin")
+		if err != nil {
+			panic(err)
+		}
+		jsWorld := &schema.World{}
+		err = schema.UnmarshalBytes(jsBytes, jsWorld)
+		if err != nil {
+			panic(err)
+		}
+		result := cmp.Diff(world, jsWorld)
+		if result != "" {
+			panic("JS -> Go 💀 " + result)
+		} else {
+			println("JS -> GO ✅")
+		}
+
+		csharpBytes, err := os.ReadFile("test/csharp.bin")
+		if err != nil {
+			panic(err)
+		}
+		csharpWorld := &schema.World{}
+		err = schema.UnmarshalBytes(csharpBytes, csharpWorld)
+		if err != nil {
+			panic(err)
+		}
+		result = cmp.Diff(world, csharpWorld)
+		if result != "" {
+			panic("C# -> Go 💀 " + result)
+		} else {
+			println("C# -> GO ✅")
+		}
+	}
 }
