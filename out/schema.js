@@ -1,1817 +1,1817 @@
-		export class Vector3 {
-			static get TypeID() { return 2 }
+export class Vector3 {
+	static get TypeID() { return 2 }
 
-			constructor(fields) {
-				if (fields) Object.assign(this, fields)
-			}
+	constructor(fields) {
+		if (fields) Object.assign(this, fields)
+	}
 
-							x
-							y
-							z
-			
+	x
+	y
+	z
 
-			deserialize(bytes) {
-				const b = new ByteReader(bytes)
-				Vector3_deserialize(b, this)
-				return this;
-			}
 
-			serialize() {
-				const w = new ByteWriter;
-				Vector3_serialize(w, this)
-				return w.bytes()
-			}
+	deserialize(bytes) {
+		const b = new ByteReader(bytes)
+		Vector3_deserialize(b, this)
+		return this;
+	}
+
+	serialize() {
+		const w = new ByteWriter;
+		Vector3_serialize(w, this)
+		return w.bytes()
+	}
+}
+
+function Vector3_serialize(b, s) {
+	b.write_uint16(2)
+	b.write_uint32(0);
+	const structStart = b.length;
+	if (s.x !== undefined) {
+		b.write_uint16(0);
+		b.write_f64(s.x)
+
+	}
+	if (s.y !== undefined) {
+		b.write_uint16(1);
+		b.write_f64(s.y)
+
+	}
+	if (s.z !== undefined) {
+		b.write_uint16(2);
+		b.write_f64(s.z)
+
+	}
+
+	b.set_uint32(structStart - 4, b.length - structStart);
+}
+
+function Vector3_deserialize(br, s) {
+	const typeId = br.read_uint16()
+	if (typeId !== 2) {
+		throw new Error("Type ID mismatch deserializing struct Vector3: expected 2, got " + typeId);
+	}
+	const length = br.read_uint32()
+	if (length > (br.length - br.position)) {
+		throw new Error("Struct Vector3 length exceeds buffer length");
+	}
+	const seenFields = new Set;
+	const startPos = br.position;
+	for (; br.position - startPos < length;) {
+		const fieldId = br.read_uint16();
+		if (seenFields.has(fieldId)) {
+			throw new Error("Duplicate field ID " + fieldId + " in struct Vector3");
 		}
+		if (fieldId > 2) {
+			return;
+		}
+		seenFields.add(fieldId);
+		switch (fieldId) {
+			case 0:
+				s.x = br.read_f64();
 
-				function Vector3_serialize(b, s) {
-			b.write_uint16(2)
+				break;
+			case 1:
+				s.y = br.read_f64();
+
+				break;
+			case 2:
+				s.z = br.read_f64();
+
+				break;
+
+		}
+	}
+}
+
+
+export class Quest {
+	static get TypeID() { return 16605 }
+
+	constructor(fields) {
+		if (fields) Object.assign(this, fields)
+	}
+
+	areaLayers
+	requiredPos
+	id
+	title
+	difficulty
+	rewards
+	prerequisites
+	nextSteps
+	description
+	objectives
+
+
+	deserialize(bytes) {
+		const b = new ByteReader(bytes)
+		Quest_deserialize(b, this)
+		return this;
+	}
+
+	serialize() {
+		const w = new ByteWriter;
+		Quest_serialize(w, this)
+		return w.bytes()
+	}
+}
+
+function Quest_serialize(b, s) {
+	b.write_uint16(16605)
+	b.write_uint32(0);
+	const structStart = b.length;
+	if (s.areaLayers !== undefined) {
+		b.write_uint16(8);
+		b.write_uint32(0);
+		const listStart0 = b.length;
+		for (const item0 of s.areaLayers) {
 			b.write_uint32(0);
-			const structStart = b.length;
-						if(s.x !== undefined) {
-				b.write_uint16(0);
-								b.write_f64(s.x)
-			
-			}
-		  			if(s.y !== undefined) {
-				b.write_uint16(1);
-								b.write_f64(s.y)
-			
-			}
-		  			if(s.z !== undefined) {
-				b.write_uint16(2);
-								b.write_f64(s.z)
-			
-			}
-		  
-			b.set_uint32(structStart - 4, b.length - structStart);
-		}
-	
-				function Vector3_deserialize(br, s) {
-			const typeId = br.read_uint16()
-			if (typeId !== 2) {
-				throw new Error("Type ID mismatch deserializing struct Vector3: expected 2, got " + typeId);
-			}
-			const length = br.read_uint32()
-			if (length > (br.length - br.position)) {
-				throw new Error("Struct Vector3 length exceeds buffer length");
-			}
-			const seenFields = new Set;
-			const startPos = br.position;
-			for (; br.position - startPos < length;) {
-				const fieldId = br.read_uint16();
-				if (seenFields.has(fieldId)) {
-					throw new Error("Duplicate field ID " + fieldId + " in struct Vector3");
-				}
-				if (fieldId > 2) {
-					return;
-				}
-				seenFields.add(fieldId);
-				switch (fieldId) {
-									case 0:
-									s.x = br.read_f64();
-			
-					break;
-								case 1:
-									s.y = br.read_f64();
-			
-					break;
-								case 2:
-									s.z = br.read_f64();
-			
-					break;
-				
-				}
-			}
-		}
-	
-	
-		export class Quest {
-			static get TypeID() { return 16605 }
-
-			constructor(fields) {
-				if (fields) Object.assign(this, fields)
-			}
-
-							areaLayers
-							requiredPos
-							id
-							title
-							difficulty
-							rewards
-							prerequisites
-							nextSteps
-							description
-							objectives
-			
-
-			deserialize(bytes) {
-				const b = new ByteReader(bytes)
-				Quest_deserialize(b, this)
-				return this;
-			}
-
-			serialize() {
-				const w = new ByteWriter;
-				Quest_serialize(w, this)
-				return w.bytes()
-			}
-		}
-
-				function Quest_serialize(b, s) {
-			b.write_uint16(16605)
-			b.write_uint32(0);
-			const structStart = b.length;
-						if(s.areaLayers !== undefined) {
-				b.write_uint16(8);
-								b.write_uint32(0);
-				const listStart0 = b.length;
-				for(const item0 of s.areaLayers) {
-									b.write_uint32(0);
-				const listStart1 = b.length;
-				for(const item1 of item0) {
-									b.write_uint32(0);
+			const listStart1 = b.length;
+			for (const item1 of item0) {
+				b.write_uint32(0);
 				const listStart2 = b.length;
-				for(const item2 of item1) {
-									b.write_uint16(item2)
-			
+				for (const item2 of item1) {
+					b.write_uint16(item2)
+
 				}
 				b.set_uint32(listStart2 - 4, b.length - listStart2);
-			
-				}
-				b.set_uint32(listStart1 - 4, b.length - listStart1);
-			
-				}
-				b.set_uint32(listStart0 - 4, b.length - listStart0);
-			
+
 			}
-		  			if(s.requiredPos !== undefined) {
-				b.write_uint16(4);
-								b.write_uint32(0);
-				const listStart0 = b.length;
-				for(const item0 of s.requiredPos) {
-									Vector3_serialize(b, item0)
-			
-				}
-				b.set_uint32(listStart0 - 4, b.length - listStart0);
-			
-			}
-		  			if(s.id !== undefined) {
-				b.write_uint16(0);
-								b.write_uint32(s.id)
-			
-			}
-		  			if(s.title !== undefined) {
-				b.write_uint16(1);
-								b.write_string(s.title)
-			
-			}
-		  			if(s.difficulty !== undefined) {
-				b.write_uint16(2);
-								b.write_uint8(s.difficulty)
-			
-			}
-		  			if(s.rewards !== undefined) {
-				b.write_uint16(3);
-								b.write_uint32(0);
-				const listStart0 = b.length;
-				for(const item0 of s.rewards) {
-									Item_serialize(b, item0)
-			
-				}
-				b.set_uint32(listStart0 - 4, b.length - listStart0);
-			
-			}
-		  			if(s.prerequisites !== undefined) {
-				b.write_uint16(6);
-								b.write_uint32(0);
-				const listStart0 = b.length;
-				for(const item0 of s.prerequisites) {
-									Quest_serialize(b, item0)
-			
-				}
-				b.set_uint32(listStart0 - 4, b.length - listStart0);
-			
-			}
-		  			if(s.nextSteps !== undefined) {
-				b.write_uint16(7);
-								b.write_uint32(0);
-				const mapStart0 = b.length;
-				for(const [key0, value0] of Object.entries(s.nextSteps)) {
-									b.write_string(key0)
-			
-									Quest_serialize(b, value0)
-			
-				}
-				b.set_uint32(mapStart0 - 4, b.length - mapStart0);
-			
-			}
-		  			if(s.description !== undefined) {
-				b.write_uint16(9);
-								b.write_string(s.description)
-			
-			}
-		  			if(s.objectives !== undefined) {
-				b.write_uint16(5);
-								b.write_uint32(0);
-				const mapStart0 = b.length;
-				for(const [key0, value0] of Object.entries(s.objectives)) {
-									b.write_string(key0)
-			
-									b.write_uint32(0);
-				const listStart1 = b.length;
-				for(const item1 of value0) {
-									b.write_string(item1)
-			
-				}
-				b.set_uint32(listStart1 - 4, b.length - listStart1);
-			
-				}
-				b.set_uint32(mapStart0 - 4, b.length - mapStart0);
-			
-			}
-		  
-			b.set_uint32(structStart - 4, b.length - structStart);
+			b.set_uint32(listStart1 - 4, b.length - listStart1);
+
 		}
-	
-				function Quest_deserialize(br, s) {
-			const typeId = br.read_uint16()
-			if (typeId !== 16605) {
-				throw new Error("Type ID mismatch deserializing struct Quest: expected 16605, got " + typeId);
-			}
-			const length = br.read_uint32()
-			if (length > (br.length - br.position)) {
-				throw new Error("Struct Quest length exceeds buffer length");
-			}
-			const seenFields = new Set;
-			const startPos = br.position;
-			for (; br.position - startPos < length;) {
-				const fieldId = br.read_uint16();
-				if (seenFields.has(fieldId)) {
-					throw new Error("Duplicate field ID " + fieldId + " in struct Quest");
-				}
-				if (fieldId > 9) {
-					return;
-				}
-				seenFields.add(fieldId);
-				switch (fieldId) {
-									case 8:
-								{
-				const listLength0 = br.read_uint32();
-				if (listLength0 > (br.length - br.position)) {
-					throw new Error("Invalid list length");
-				}
-				const listStart0 = br.position;
-				s.areaLayers = [];
-				for (; br.position - listStart0 < listLength0;) {
-					let item0;
-								{
-				const listLength1 = br.read_uint32();
-				if (listLength1 > (br.length - br.position)) {
-					throw new Error("Invalid list length");
-				}
-				const listStart1 = br.position;
-				item0 = [];
-				for (; br.position - listStart1 < listLength1;) {
-					let item1;
-								{
-				const listLength2 = br.read_uint32();
-				if (listLength2 > (br.length - br.position)) {
-					throw new Error("Invalid list length");
-				}
-				const listStart2 = br.position;
-				item1 = [];
-				for (; br.position - listStart2 < listLength2;) {
-					let item2;
-									item2 = br.read_uint16();
-			
-					item1.push(item2);
-				}
-			}
-			
-					item0.push(item1);
-				}
-			}
-			
-					s.areaLayers.push(item0);
-				}
-			}
-			
-					break;
-								case 4:
-								{
-				const listLength0 = br.read_uint32();
-				if (listLength0 > (br.length - br.position)) {
-					throw new Error("Invalid list length");
-				}
-				const listStart0 = br.position;
-				s.requiredPos = [];
-				for (; br.position - listStart0 < listLength0;) {
-					let item0;
-									item0 = new Vector3();
-				Vector3_deserialize(br, item0);
-			
-					s.requiredPos.push(item0);
-				}
-			}
-			
-					break;
-								case 0:
-									s.id = br.read_uint32();
-			
-					break;
-								case 1:
-									s.title = br.read_string();
-			
-					break;
-								case 2:
-									s.difficulty = br.read_uint8();
-			
-					break;
-								case 3:
-								{
-				const listLength0 = br.read_uint32();
-				if (listLength0 > (br.length - br.position)) {
-					throw new Error("Invalid list length");
-				}
-				const listStart0 = br.position;
-				s.rewards = [];
-				for (; br.position - listStart0 < listLength0;) {
-					let item0;
-									item0 = new Item();
-				Item_deserialize(br, item0);
-			
-					s.rewards.push(item0);
-				}
-			}
-			
-					break;
-								case 6:
-								{
-				const listLength0 = br.read_uint32();
-				if (listLength0 > (br.length - br.position)) {
-					throw new Error("Invalid list length");
-				}
-				const listStart0 = br.position;
-				s.prerequisites = [];
-				for (; br.position - listStart0 < listLength0;) {
-					let item0;
-									item0 = new Quest();
-				Quest_deserialize(br, item0);
-			
-					s.prerequisites.push(item0);
-				}
-			}
-			
-					break;
-								case 7:
-								{
-				const mapLength0 = br.read_uint32();
-				if (mapLength0 > (br.length-br.position)) {
-					throw new Error("Invalid map length");
-				}
-				const mapStart0 = br.position;
-				s.nextSteps = {};
-				for (; br.position - mapStart0 < mapLength0;) {
-					let key0;
-									key0 = br.read_string();
-			
-					let value0;
-									value0 = new Quest();
-				Quest_deserialize(br, value0);
-			
-					s.nextSteps[key0] = value0;
-				}
-			}
-			
-					break;
-								case 9:
-									s.description = br.read_string();
-			
-					break;
-								case 5:
-								{
-				const mapLength0 = br.read_uint32();
-				if (mapLength0 > (br.length-br.position)) {
-					throw new Error("Invalid map length");
-				}
-				const mapStart0 = br.position;
-				s.objectives = {};
-				for (; br.position - mapStart0 < mapLength0;) {
-					let key0;
-									key0 = br.read_string();
-			
-					let value0;
-								{
-				const listLength1 = br.read_uint32();
-				if (listLength1 > (br.length - br.position)) {
-					throw new Error("Invalid list length");
-				}
-				const listStart1 = br.position;
-				value0 = [];
-				for (; br.position - listStart1 < listLength1;) {
-					let item1;
-									item1 = br.read_string();
-			
-					value0.push(item1);
-				}
-			}
-			
-					s.objectives[key0] = value0;
-				}
-			}
-			
-					break;
-				
-				}
-			}
+		b.set_uint32(listStart0 - 4, b.length - listStart0);
+
+	}
+	if (s.requiredPos !== undefined) {
+		b.write_uint16(4);
+		b.write_uint32(0);
+		const listStart0 = b.length;
+		for (const item0 of s.requiredPos) {
+			Vector3_serialize(b, item0)
+
 		}
-	
-	
-		export class Character {
-			static get TypeID() { return 16560 }
+		b.set_uint32(listStart0 - 4, b.length - listStart0);
 
-			constructor(fields) {
-				if (fields) Object.assign(this, fields)
-			}
+	}
+	if (s.id !== undefined) {
+		b.write_uint16(0);
+		b.write_uint32(s.id)
 
-							companions
-							skillProgress
-							id
-							position
-							stats
-							friends
-							arbitraryData
-							inventory
-							name
-							equipment
-			
+	}
+	if (s.title !== undefined) {
+		b.write_uint16(1);
+		b.write_string(s.title)
 
-			deserialize(bytes) {
-				const b = new ByteReader(bytes)
-				Character_deserialize(b, this)
-				return this;
-			}
+	}
+	if (s.difficulty !== undefined) {
+		b.write_uint16(2);
+		b.write_uint8(s.difficulty)
 
-			serialize() {
-				const w = new ByteWriter;
-				Character_serialize(w, this)
-				return w.bytes()
-			}
+	}
+	if (s.rewards !== undefined) {
+		b.write_uint16(3);
+		b.write_uint32(0);
+		const listStart0 = b.length;
+		for (const item0 of s.rewards) {
+			Item_serialize(b, item0)
+
 		}
+		b.set_uint32(listStart0 - 4, b.length - listStart0);
 
-				function Character_serialize(b, s) {
-			b.write_uint16(16560)
+	}
+	if (s.prerequisites !== undefined) {
+		b.write_uint16(6);
+		b.write_uint32(0);
+		const listStart0 = b.length;
+		for (const item0 of s.prerequisites) {
+			Quest_serialize(b, item0)
+
+		}
+		b.set_uint32(listStart0 - 4, b.length - listStart0);
+
+	}
+	if (s.nextSteps !== undefined) {
+		b.write_uint16(7);
+		b.write_uint32(0);
+		const mapStart0 = b.length;
+		for (const [key0, value0] of Object.entries(s.nextSteps)) {
+			b.write_string(key0)
+
+			Quest_serialize(b, value0)
+
+		}
+		b.set_uint32(mapStart0 - 4, b.length - mapStart0);
+
+	}
+	if (s.description !== undefined) {
+		b.write_uint16(9);
+		b.write_string(s.description)
+
+	}
+	if (s.objectives !== undefined) {
+		b.write_uint16(5);
+		b.write_uint32(0);
+		const mapStart0 = b.length;
+		for (const [key0, value0] of Object.entries(s.objectives)) {
+			b.write_string(key0)
+
 			b.write_uint32(0);
-			const structStart = b.length;
-						if(s.companions !== undefined) {
-				b.write_uint16(6);
-								b.write_uint32(0);
-				const mapStart0 = b.length;
-				for(const [key0, value0] of Object.entries(s.companions)) {
-									b.write_uint16(key0)
-			
-									Companion_serialize(b, value0)
-			
+			const listStart1 = b.length;
+			for (const item1 of value0) {
+				b.write_string(item1)
+
+			}
+			b.set_uint32(listStart1 - 4, b.length - listStart1);
+
+		}
+		b.set_uint32(mapStart0 - 4, b.length - mapStart0);
+
+	}
+
+	b.set_uint32(structStart - 4, b.length - structStart);
+}
+
+function Quest_deserialize(br, s) {
+	const typeId = br.read_uint16()
+	if (typeId !== 16605) {
+		throw new Error("Type ID mismatch deserializing struct Quest: expected 16605, got " + typeId);
+	}
+	const length = br.read_uint32()
+	if (length > (br.length - br.position)) {
+		throw new Error("Struct Quest length exceeds buffer length");
+	}
+	const seenFields = new Set;
+	const startPos = br.position;
+	for (; br.position - startPos < length;) {
+		const fieldId = br.read_uint16();
+		if (seenFields.has(fieldId)) {
+			throw new Error("Duplicate field ID " + fieldId + " in struct Quest");
+		}
+		if (fieldId > 9) {
+			return;
+		}
+		seenFields.add(fieldId);
+		switch (fieldId) {
+			case 8:
+				{
+					const listLength0 = br.read_uint32();
+					if (listLength0 > (br.length - br.position)) {
+						throw new Error("Invalid list length");
+					}
+					const listStart0 = br.position;
+					s.areaLayers = [];
+					for (; br.position - listStart0 < listLength0;) {
+						let item0;
+						{
+							const listLength1 = br.read_uint32();
+							if (listLength1 > (br.length - br.position)) {
+								throw new Error("Invalid list length");
+							}
+							const listStart1 = br.position;
+							item0 = [];
+							for (; br.position - listStart1 < listLength1;) {
+								let item1;
+								{
+									const listLength2 = br.read_uint32();
+									if (listLength2 > (br.length - br.position)) {
+										throw new Error("Invalid list length");
+									}
+									const listStart2 = br.position;
+									item1 = [];
+									for (; br.position - listStart2 < listLength2;) {
+										let item2;
+										item2 = br.read_uint16();
+
+										item1.push(item2);
+									}
+								}
+
+								item0.push(item1);
+							}
+						}
+
+						s.areaLayers.push(item0);
+					}
 				}
-				b.set_uint32(mapStart0 - 4, b.length - mapStart0);
-			
-			}
-		  			if(s.skillProgress !== undefined) {
-				b.write_uint16(8);
-								b.write_uint32(0);
-				const mapStart0 = b.length;
-				for(const [key0, value0] of Object.entries(s.skillProgress)) {
-									b.write_string(key0)
-			
-									b.write_uint32(0);
-				const listStart1 = b.length;
-				for(const item1 of value0) {
-									b.write_f64(item1)
-			
+
+				break;
+			case 4:
+				{
+					const listLength0 = br.read_uint32();
+					if (listLength0 > (br.length - br.position)) {
+						throw new Error("Invalid list length");
+					}
+					const listStart0 = br.position;
+					s.requiredPos = [];
+					for (; br.position - listStart0 < listLength0;) {
+						let item0;
+						item0 = new Vector3();
+						Vector3_deserialize(br, item0);
+
+						s.requiredPos.push(item0);
+					}
 				}
-				b.set_uint32(listStart1 - 4, b.length - listStart1);
-			
+
+				break;
+			case 0:
+				s.id = br.read_uint32();
+
+				break;
+			case 1:
+				s.title = br.read_string();
+
+				break;
+			case 2:
+				s.difficulty = br.read_uint8();
+
+				break;
+			case 3:
+				{
+					const listLength0 = br.read_uint32();
+					if (listLength0 > (br.length - br.position)) {
+						throw new Error("Invalid list length");
+					}
+					const listStart0 = br.position;
+					s.rewards = [];
+					for (; br.position - listStart0 < listLength0;) {
+						let item0;
+						item0 = new Item();
+						Item_deserialize(br, item0);
+
+						s.rewards.push(item0);
+					}
 				}
-				b.set_uint32(mapStart0 - 4, b.length - mapStart0);
-			
-			}
-		  			if(s.id !== undefined) {
-				b.write_uint16(0);
-								b.write_uint64(s.id)
-			
-			}
-		  			if(s.position !== undefined) {
-				b.write_uint16(2);
-								Vector3_serialize(b, s.position)
-			
-			}
-		  			if(s.stats !== undefined) {
-				b.write_uint16(3);
-								Stats_serialize(b, s.stats)
-			
-			}
-		  			if(s.friends !== undefined) {
-				b.write_uint16(7);
-								b.write_uint32(0);
-				const listStart0 = b.length;
-				for(const item0 of s.friends) {
-									Character_serialize(b, item0)
-			
+
+				break;
+			case 6:
+				{
+					const listLength0 = br.read_uint32();
+					if (listLength0 > (br.length - br.position)) {
+						throw new Error("Invalid list length");
+					}
+					const listStart0 = br.position;
+					s.prerequisites = [];
+					for (; br.position - listStart0 < listLength0;) {
+						let item0;
+						item0 = new Quest();
+						Quest_deserialize(br, item0);
+
+						s.prerequisites.push(item0);
+					}
 				}
-				b.set_uint32(listStart0 - 4, b.length - listStart0);
-			
+
+				break;
+			case 7:
+				{
+					const mapLength0 = br.read_uint32();
+					if (mapLength0 > (br.length - br.position)) {
+						throw new Error("Invalid map length");
+					}
+					const mapStart0 = br.position;
+					s.nextSteps = {};
+					for (; br.position - mapStart0 < mapLength0;) {
+						let key0;
+						key0 = br.read_string();
+
+						let value0;
+						value0 = new Quest();
+						Quest_deserialize(br, value0);
+
+						s.nextSteps[key0] = value0;
+					}
+				}
+
+				break;
+			case 9:
+				s.description = br.read_string();
+
+				break;
+			case 5:
+				{
+					const mapLength0 = br.read_uint32();
+					if (mapLength0 > (br.length - br.position)) {
+						throw new Error("Invalid map length");
+					}
+					const mapStart0 = br.position;
+					s.objectives = {};
+					for (; br.position - mapStart0 < mapLength0;) {
+						let key0;
+						key0 = br.read_string();
+
+						let value0;
+						{
+							const listLength1 = br.read_uint32();
+							if (listLength1 > (br.length - br.position)) {
+								throw new Error("Invalid list length");
+							}
+							const listStart1 = br.position;
+							value0 = [];
+							for (; br.position - listStart1 < listLength1;) {
+								let item1;
+								item1 = br.read_string();
+
+								value0.push(item1);
+							}
+						}
+
+						s.objectives[key0] = value0;
+					}
+				}
+
+				break;
+
+		}
+	}
+}
+
+
+export class Character {
+	static get TypeID() { return 16560 }
+
+	constructor(fields) {
+		if (fields) Object.assign(this, fields)
+	}
+
+	companions
+	skillProgress
+	id
+	position
+	stats
+	friends
+	arbitraryData
+	inventory
+	name
+	equipment
+
+
+	deserialize(bytes) {
+		const b = new ByteReader(bytes)
+		Character_deserialize(b, this)
+		return this;
+	}
+
+	serialize() {
+		const w = new ByteWriter;
+		Character_serialize(w, this)
+		return w.bytes()
+	}
+}
+
+function Character_serialize(b, s) {
+	b.write_uint16(16560)
+	b.write_uint32(0);
+	const structStart = b.length;
+	if (s.companions !== undefined) {
+		b.write_uint16(6);
+		b.write_uint32(0);
+		const mapStart0 = b.length;
+		for (const [key0, value0] of Object.entries(s.companions)) {
+			b.write_uint16(key0)
+
+			Companion_serialize(b, value0)
+
+		}
+		b.set_uint32(mapStart0 - 4, b.length - mapStart0);
+
+	}
+	if (s.skillProgress !== undefined) {
+		b.write_uint16(8);
+		b.write_uint32(0);
+		const mapStart0 = b.length;
+		for (const [key0, value0] of Object.entries(s.skillProgress)) {
+			b.write_string(key0)
+
+			b.write_uint32(0);
+			const listStart1 = b.length;
+			for (const item1 of value0) {
+				b.write_f64(item1)
+
 			}
-		  			if(s.arbitraryData !== undefined) {
-				b.write_uint16(9);
-								b.write_uint32(0);
-				const mapStart0 = b.length;
-				for(const [key0, value0] of Object.entries(s.arbitraryData)) {
-									b.write_string(key0)
-			
-									b.write_uint32(0);
-				const mapStart1 = b.length;
-				for(const [key1, value1] of Object.entries(value0)) {
-									b.write_string(key1)
-			
-									b.write_uint32(0);
+			b.set_uint32(listStart1 - 4, b.length - listStart1);
+
+		}
+		b.set_uint32(mapStart0 - 4, b.length - mapStart0);
+
+	}
+	if (s.id !== undefined) {
+		b.write_uint16(0);
+		b.write_uint64(s.id)
+
+	}
+	if (s.position !== undefined) {
+		b.write_uint16(2);
+		Vector3_serialize(b, s.position)
+
+	}
+	if (s.stats !== undefined) {
+		b.write_uint16(3);
+		Stats_serialize(b, s.stats)
+
+	}
+	if (s.friends !== undefined) {
+		b.write_uint16(7);
+		b.write_uint32(0);
+		const listStart0 = b.length;
+		for (const item0 of s.friends) {
+			Character_serialize(b, item0)
+
+		}
+		b.set_uint32(listStart0 - 4, b.length - listStart0);
+
+	}
+	if (s.arbitraryData !== undefined) {
+		b.write_uint16(9);
+		b.write_uint32(0);
+		const mapStart0 = b.length;
+		for (const [key0, value0] of Object.entries(s.arbitraryData)) {
+			b.write_string(key0)
+
+			b.write_uint32(0);
+			const mapStart1 = b.length;
+			for (const [key1, value1] of Object.entries(value0)) {
+				b.write_string(key1)
+
+				b.write_uint32(0);
 				const mapStart2 = b.length;
-				for(const [key2, value2] of Object.entries(value1)) {
-									b.write_string(key2)
-			
-									b.write_int8(value2)
-			
+				for (const [key2, value2] of Object.entries(value1)) {
+					b.write_string(key2)
+
+					b.write_int8(value2)
+
 				}
 				b.set_uint32(mapStart2 - 4, b.length - mapStart2);
-			
-				}
-				b.set_uint32(mapStart1 - 4, b.length - mapStart1);
-			
-				}
-				b.set_uint32(mapStart0 - 4, b.length - mapStart0);
-			
+
 			}
-		  			if(s.inventory !== undefined) {
-				b.write_uint16(4);
-								b.write_uint32(0);
-				const listStart0 = b.length;
-				for(const item0 of s.inventory) {
-									b.write_uint32(0);
-				const listStart1 = b.length;
-				for(const item1 of item0) {
-									Item_serialize(b, item1)
-			
-				}
-				b.set_uint32(listStart1 - 4, b.length - listStart1);
-			
-				}
-				b.set_uint32(listStart0 - 4, b.length - listStart0);
-			
-			}
-		  			if(s.name !== undefined) {
-				b.write_uint16(1);
-								b.write_string(s.name)
-			
-			}
-		  			if(s.equipment !== undefined) {
-				b.write_uint16(5);
-								b.write_uint32(0);
-				const mapStart0 = b.length;
-				for(const [key0, value0] of Object.entries(s.equipment)) {
-									b.write_string(key0)
-			
-									EquipmentSlot_serialize(b, value0)
-			
-				}
-				b.set_uint32(mapStart0 - 4, b.length - mapStart0);
-			
-			}
-		  
-			b.set_uint32(structStart - 4, b.length - structStart);
+			b.set_uint32(mapStart1 - 4, b.length - mapStart1);
+
 		}
-	
-				function Character_deserialize(br, s) {
-			const typeId = br.read_uint16()
-			if (typeId !== 16560) {
-				throw new Error("Type ID mismatch deserializing struct Character: expected 16560, got " + typeId);
+		b.set_uint32(mapStart0 - 4, b.length - mapStart0);
+
+	}
+	if (s.inventory !== undefined) {
+		b.write_uint16(4);
+		b.write_uint32(0);
+		const listStart0 = b.length;
+		for (const item0 of s.inventory) {
+			b.write_uint32(0);
+			const listStart1 = b.length;
+			for (const item1 of item0) {
+				Item_serialize(b, item1)
+
 			}
-			const length = br.read_uint32()
-			if (length > (br.length - br.position)) {
-				throw new Error("Struct Character length exceeds buffer length");
-			}
-			const seenFields = new Set;
-			const startPos = br.position;
-			for (; br.position - startPos < length;) {
-				const fieldId = br.read_uint16();
-				if (seenFields.has(fieldId)) {
-					throw new Error("Duplicate field ID " + fieldId + " in struct Character");
+			b.set_uint32(listStart1 - 4, b.length - listStart1);
+
+		}
+		b.set_uint32(listStart0 - 4, b.length - listStart0);
+
+	}
+	if (s.name !== undefined) {
+		b.write_uint16(1);
+		b.write_string(s.name)
+
+	}
+	if (s.equipment !== undefined) {
+		b.write_uint16(5);
+		b.write_uint32(0);
+		const mapStart0 = b.length;
+		for (const [key0, value0] of Object.entries(s.equipment)) {
+			b.write_string(key0)
+
+			EquipmentSlot_serialize(b, value0)
+
+		}
+		b.set_uint32(mapStart0 - 4, b.length - mapStart0);
+
+	}
+
+	b.set_uint32(structStart - 4, b.length - structStart);
+}
+
+function Character_deserialize(br, s) {
+	const typeId = br.read_uint16()
+	if (typeId !== 16560) {
+		throw new Error("Type ID mismatch deserializing struct Character: expected 16560, got " + typeId);
+	}
+	const length = br.read_uint32()
+	if (length > (br.length - br.position)) {
+		throw new Error("Struct Character length exceeds buffer length");
+	}
+	const seenFields = new Set;
+	const startPos = br.position;
+	for (; br.position - startPos < length;) {
+		const fieldId = br.read_uint16();
+		if (seenFields.has(fieldId)) {
+			throw new Error("Duplicate field ID " + fieldId + " in struct Character");
+		}
+		if (fieldId > 9) {
+			return;
+		}
+		seenFields.add(fieldId);
+		switch (fieldId) {
+			case 6:
+				{
+					const mapLength0 = br.read_uint32();
+					if (mapLength0 > (br.length - br.position)) {
+						throw new Error("Invalid map length");
+					}
+					const mapStart0 = br.position;
+					s.companions = {};
+					for (; br.position - mapStart0 < mapLength0;) {
+						let key0;
+						key0 = br.read_uint16();
+
+						let value0;
+						value0 = new Companion();
+						Companion_deserialize(br, value0);
+
+						s.companions[key0] = value0;
+					}
 				}
-				if (fieldId > 9) {
-					return;
+
+				break;
+			case 8:
+				{
+					const mapLength0 = br.read_uint32();
+					if (mapLength0 > (br.length - br.position)) {
+						throw new Error("Invalid map length");
+					}
+					const mapStart0 = br.position;
+					s.skillProgress = {};
+					for (; br.position - mapStart0 < mapLength0;) {
+						let key0;
+						key0 = br.read_string();
+
+						let value0;
+						{
+							const listLength1 = br.read_uint32();
+							if (listLength1 > (br.length - br.position)) {
+								throw new Error("Invalid list length");
+							}
+							const listStart1 = br.position;
+							value0 = [];
+							for (; br.position - listStart1 < listLength1;) {
+								let item1;
+								item1 = br.read_f64();
+
+								value0.push(item1);
+							}
+						}
+
+						s.skillProgress[key0] = value0;
+					}
 				}
-				seenFields.add(fieldId);
-				switch (fieldId) {
-									case 6:
-								{
-				const mapLength0 = br.read_uint32();
-				if (mapLength0 > (br.length-br.position)) {
-					throw new Error("Invalid map length");
-				}
-				const mapStart0 = br.position;
-				s.companions = {};
-				for (; br.position - mapStart0 < mapLength0;) {
-					let key0;
-									key0 = br.read_uint16();
-			
-					let value0;
-									value0 = new Companion();
-				Companion_deserialize(br, value0);
-			
-					s.companions[key0] = value0;
-				}
-			}
-			
-					break;
-								case 8:
-								{
-				const mapLength0 = br.read_uint32();
-				if (mapLength0 > (br.length-br.position)) {
-					throw new Error("Invalid map length");
-				}
-				const mapStart0 = br.position;
-				s.skillProgress = {};
-				for (; br.position - mapStart0 < mapLength0;) {
-					let key0;
-									key0 = br.read_string();
-			
-					let value0;
-								{
-				const listLength1 = br.read_uint32();
-				if (listLength1 > (br.length - br.position)) {
-					throw new Error("Invalid list length");
-				}
-				const listStart1 = br.position;
-				value0 = [];
-				for (; br.position - listStart1 < listLength1;) {
-					let item1;
-									item1 = br.read_f64();
-			
-					value0.push(item1);
-				}
-			}
-			
-					s.skillProgress[key0] = value0;
-				}
-			}
-			
-					break;
-								case 0:
-									s.id = br.read_uint64();
-			
-					break;
-								case 2:
-									s.position = new Vector3();
+
+				break;
+			case 0:
+				s.id = br.read_uint64();
+
+				break;
+			case 2:
+				s.position = new Vector3();
 				Vector3_deserialize(br, s.position);
-			
-					break;
-								case 3:
-									s.stats = new Stats();
+
+				break;
+			case 3:
+				s.stats = new Stats();
 				Stats_deserialize(br, s.stats);
-			
-					break;
-								case 7:
+
+				break;
+			case 7:
+				{
+					const listLength0 = br.read_uint32();
+					if (listLength0 > (br.length - br.position)) {
+						throw new Error("Invalid list length");
+					}
+					const listStart0 = br.position;
+					s.friends = [];
+					for (; br.position - listStart0 < listLength0;) {
+						let item0;
+						item0 = new Character();
+						Character_deserialize(br, item0);
+
+						s.friends.push(item0);
+					}
+				}
+
+				break;
+			case 9:
+				{
+					const mapLength0 = br.read_uint32();
+					if (mapLength0 > (br.length - br.position)) {
+						throw new Error("Invalid map length");
+					}
+					const mapStart0 = br.position;
+					s.arbitraryData = {};
+					for (; br.position - mapStart0 < mapLength0;) {
+						let key0;
+						key0 = br.read_string();
+
+						let value0;
+						{
+							const mapLength1 = br.read_uint32();
+							if (mapLength1 > (br.length - br.position)) {
+								throw new Error("Invalid map length");
+							}
+							const mapStart1 = br.position;
+							value0 = {};
+							for (; br.position - mapStart1 < mapLength1;) {
+								let key1;
+								key1 = br.read_string();
+
+								let value1;
 								{
-				const listLength0 = br.read_uint32();
-				if (listLength0 > (br.length - br.position)) {
-					throw new Error("Invalid list length");
+									const mapLength2 = br.read_uint32();
+									if (mapLength2 > (br.length - br.position)) {
+										throw new Error("Invalid map length");
+									}
+									const mapStart2 = br.position;
+									value1 = {};
+									for (; br.position - mapStart2 < mapLength2;) {
+										let key2;
+										key2 = br.read_string();
+
+										let value2;
+										value2 = br.read_int8();
+
+										value1[key2] = value2;
+									}
+								}
+
+								value0[key1] = value1;
+							}
+						}
+
+						s.arbitraryData[key0] = value0;
+					}
 				}
-				const listStart0 = br.position;
-				s.friends = [];
-				for (; br.position - listStart0 < listLength0;) {
-					let item0;
-									item0 = new Character();
-				Character_deserialize(br, item0);
-			
-					s.friends.push(item0);
+
+				break;
+			case 4:
+				{
+					const listLength0 = br.read_uint32();
+					if (listLength0 > (br.length - br.position)) {
+						throw new Error("Invalid list length");
+					}
+					const listStart0 = br.position;
+					s.inventory = [];
+					for (; br.position - listStart0 < listLength0;) {
+						let item0;
+						{
+							const listLength1 = br.read_uint32();
+							if (listLength1 > (br.length - br.position)) {
+								throw new Error("Invalid list length");
+							}
+							const listStart1 = br.position;
+							item0 = [];
+							for (; br.position - listStart1 < listLength1;) {
+								let item1;
+								item1 = new Item();
+								Item_deserialize(br, item1);
+
+								item0.push(item1);
+							}
+						}
+
+						s.inventory.push(item0);
+					}
 				}
-			}
-			
-					break;
-								case 9:
-								{
-				const mapLength0 = br.read_uint32();
-				if (mapLength0 > (br.length-br.position)) {
-					throw new Error("Invalid map length");
+
+				break;
+			case 1:
+				s.name = br.read_string();
+
+				break;
+			case 5:
+				{
+					const mapLength0 = br.read_uint32();
+					if (mapLength0 > (br.length - br.position)) {
+						throw new Error("Invalid map length");
+					}
+					const mapStart0 = br.position;
+					s.equipment = {};
+					for (; br.position - mapStart0 < mapLength0;) {
+						let key0;
+						key0 = br.read_string();
+
+						let value0;
+						value0 = new EquipmentSlot();
+						EquipmentSlot_deserialize(br, value0);
+
+						s.equipment[key0] = value0;
+					}
 				}
-				const mapStart0 = br.position;
-				s.arbitraryData = {};
-				for (; br.position - mapStart0 < mapLength0;) {
-					let key0;
-									key0 = br.read_string();
-			
-					let value0;
-								{
-				const mapLength1 = br.read_uint32();
-				if (mapLength1 > (br.length-br.position)) {
-					throw new Error("Invalid map length");
-				}
-				const mapStart1 = br.position;
-				value0 = {};
-				for (; br.position - mapStart1 < mapLength1;) {
-					let key1;
-									key1 = br.read_string();
-			
-					let value1;
-								{
-				const mapLength2 = br.read_uint32();
-				if (mapLength2 > (br.length-br.position)) {
-					throw new Error("Invalid map length");
-				}
-				const mapStart2 = br.position;
-				value1 = {};
-				for (; br.position - mapStart2 < mapLength2;) {
-					let key2;
-									key2 = br.read_string();
-			
-					let value2;
-									value2 = br.read_int8();
-			
-					value1[key2] = value2;
-				}
-			}
-			
-					value0[key1] = value1;
-				}
-			}
-			
-					s.arbitraryData[key0] = value0;
-				}
-			}
-			
-					break;
-								case 4:
-								{
-				const listLength0 = br.read_uint32();
-				if (listLength0 > (br.length - br.position)) {
-					throw new Error("Invalid list length");
-				}
-				const listStart0 = br.position;
-				s.inventory = [];
-				for (; br.position - listStart0 < listLength0;) {
-					let item0;
-								{
-				const listLength1 = br.read_uint32();
-				if (listLength1 > (br.length - br.position)) {
-					throw new Error("Invalid list length");
-				}
-				const listStart1 = br.position;
-				item0 = [];
-				for (; br.position - listStart1 < listLength1;) {
-					let item1;
-									item1 = new Item();
-				Item_deserialize(br, item1);
-			
-					item0.push(item1);
-				}
-			}
-			
-					s.inventory.push(item0);
-				}
-			}
-			
-					break;
-								case 1:
-									s.name = br.read_string();
-			
-					break;
-								case 5:
-								{
-				const mapLength0 = br.read_uint32();
-				if (mapLength0 > (br.length-br.position)) {
-					throw new Error("Invalid map length");
-				}
-				const mapStart0 = br.position;
-				s.equipment = {};
-				for (; br.position - mapStart0 < mapLength0;) {
-					let key0;
-									key0 = br.read_string();
-			
-					let value0;
-									value0 = new EquipmentSlot();
-				EquipmentSlot_deserialize(br, value0);
-			
-					s.equipment[key0] = value0;
-				}
-			}
-			
-					break;
-				
-				}
-			}
+
+				break;
+
 		}
-	
-	
-		export class Stats {
-			static get TypeID() { return 3 }
+	}
+}
 
-			constructor(fields) {
-				if (fields) Object.assign(this, fields)
-			}
 
-							mana
-							stamina
-							critChance
-							critDamage
-							resistances
-							health
-			
+export class Stats {
+	static get TypeID() { return 3 }
 
-			deserialize(bytes) {
-				const b = new ByteReader(bytes)
-				Stats_deserialize(b, this)
-				return this;
-			}
+	constructor(fields) {
+		if (fields) Object.assign(this, fields)
+	}
 
-			serialize() {
-				const w = new ByteWriter;
-				Stats_serialize(w, this)
-				return w.bytes()
-			}
+	mana
+	stamina
+	critChance
+	critDamage
+	resistances
+	health
+
+
+	deserialize(bytes) {
+		const b = new ByteReader(bytes)
+		Stats_deserialize(b, this)
+		return this;
+	}
+
+	serialize() {
+		const w = new ByteWriter;
+		Stats_serialize(w, this)
+		return w.bytes()
+	}
+}
+
+function Stats_serialize(b, s) {
+	b.write_uint16(3)
+	b.write_uint32(0);
+	const structStart = b.length;
+	if (s.mana !== undefined) {
+		b.write_uint16(1);
+		b.write_int32(s.mana)
+
+	}
+	if (s.stamina !== undefined) {
+		b.write_uint16(2);
+		b.write_int32(s.stamina)
+
+	}
+	if (s.critChance !== undefined) {
+		b.write_uint16(3);
+		b.write_f64(s.critChance)
+
+	}
+	if (s.critDamage !== undefined) {
+		b.write_uint16(4);
+		b.write_f64(s.critDamage)
+
+	}
+	if (s.resistances !== undefined) {
+		b.write_uint16(5);
+		b.write_uint32(0);
+		const mapStart0 = b.length;
+		for (const [key0, value0] of Object.entries(s.resistances)) {
+			b.write_string(key0)
+
+			b.write_int16(value0)
+
 		}
+		b.set_uint32(mapStart0 - 4, b.length - mapStart0);
 
-				function Stats_serialize(b, s) {
-			b.write_uint16(3)
+	}
+	if (s.health !== undefined) {
+		b.write_uint16(0);
+		b.write_int32(s.health)
+
+	}
+
+	b.set_uint32(structStart - 4, b.length - structStart);
+}
+
+function Stats_deserialize(br, s) {
+	const typeId = br.read_uint16()
+	if (typeId !== 3) {
+		throw new Error("Type ID mismatch deserializing struct Stats: expected 3, got " + typeId);
+	}
+	const length = br.read_uint32()
+	if (length > (br.length - br.position)) {
+		throw new Error("Struct Stats length exceeds buffer length");
+	}
+	const seenFields = new Set;
+	const startPos = br.position;
+	for (; br.position - startPos < length;) {
+		const fieldId = br.read_uint16();
+		if (seenFields.has(fieldId)) {
+			throw new Error("Duplicate field ID " + fieldId + " in struct Stats");
+		}
+		if (fieldId > 5) {
+			return;
+		}
+		seenFields.add(fieldId);
+		switch (fieldId) {
+			case 1:
+				s.mana = br.read_int32();
+
+				break;
+			case 2:
+				s.stamina = br.read_int32();
+
+				break;
+			case 3:
+				s.critChance = br.read_f64();
+
+				break;
+			case 4:
+				s.critDamage = br.read_f64();
+
+				break;
+			case 5:
+				{
+					const mapLength0 = br.read_uint32();
+					if (mapLength0 > (br.length - br.position)) {
+						throw new Error("Invalid map length");
+					}
+					const mapStart0 = br.position;
+					s.resistances = {};
+					for (; br.position - mapStart0 < mapLength0;) {
+						let key0;
+						key0 = br.read_string();
+
+						let value0;
+						value0 = br.read_int16();
+
+						s.resistances[key0] = value0;
+					}
+				}
+
+				break;
+			case 0:
+				s.health = br.read_int32();
+
+				break;
+
+		}
+	}
+}
+
+
+export class Item {
+	static get TypeID() { return 1 }
+
+	constructor(fields) {
+		if (fields) Object.assign(this, fields)
+	}
+
+	extraData
+	id
+	name
+	rarity
+	weight
+	isQuestItem
+	tags
+
+
+	deserialize(bytes) {
+		const b = new ByteReader(bytes)
+		Item_deserialize(b, this)
+		return this;
+	}
+
+	serialize() {
+		const w = new ByteWriter;
+		Item_serialize(w, this)
+		return w.bytes()
+	}
+}
+
+function Item_serialize(b, s) {
+	b.write_uint16(1)
+	b.write_uint32(0);
+	const structStart = b.length;
+	if (s.extraData !== undefined) {
+		b.write_uint16(6);
+		b.write_uint32(0);
+		const mapStart0 = b.length;
+		for (const [key0, value0] of Object.entries(s.extraData)) {
+			b.write_string(key0)
+
+			b.write_string(value0)
+
+		}
+		b.set_uint32(mapStart0 - 4, b.length - mapStart0);
+
+	}
+	if (s.id !== undefined) {
+		b.write_uint16(0);
+		b.write_uint32(s.id)
+
+	}
+	if (s.name !== undefined) {
+		b.write_uint16(1);
+		b.write_string(s.name)
+
+	}
+	if (s.rarity !== undefined) {
+		b.write_uint16(2);
+		b.write_uint8(s.rarity)
+
+	}
+	if (s.weight !== undefined) {
+		b.write_uint16(3);
+		b.write_f64(s.weight)
+
+	}
+	if (s.isQuestItem !== undefined) {
+		b.write_uint16(4);
+		b.write_bool(s.isQuestItem)
+
+	}
+	if (s.tags !== undefined) {
+		b.write_uint16(5);
+		b.write_uint32(0);
+		const listStart0 = b.length;
+		for (const item0 of s.tags) {
+			b.write_string(item0)
+
+		}
+		b.set_uint32(listStart0 - 4, b.length - listStart0);
+
+	}
+
+	b.set_uint32(structStart - 4, b.length - structStart);
+}
+
+function Item_deserialize(br, s) {
+	const typeId = br.read_uint16()
+	if (typeId !== 1) {
+		throw new Error("Type ID mismatch deserializing struct Item: expected 1, got " + typeId);
+	}
+	const length = br.read_uint32()
+	if (length > (br.length - br.position)) {
+		throw new Error("Struct Item length exceeds buffer length");
+	}
+	const seenFields = new Set;
+	const startPos = br.position;
+	for (; br.position - startPos < length;) {
+		const fieldId = br.read_uint16();
+		if (seenFields.has(fieldId)) {
+			throw new Error("Duplicate field ID " + fieldId + " in struct Item");
+		}
+		if (fieldId > 6) {
+			return;
+		}
+		seenFields.add(fieldId);
+		switch (fieldId) {
+			case 6:
+				{
+					const mapLength0 = br.read_uint32();
+					if (mapLength0 > (br.length - br.position)) {
+						throw new Error("Invalid map length");
+					}
+					const mapStart0 = br.position;
+					s.extraData = {};
+					for (; br.position - mapStart0 < mapLength0;) {
+						let key0;
+						key0 = br.read_string();
+
+						let value0;
+						value0 = br.read_string();
+
+						s.extraData[key0] = value0;
+					}
+				}
+
+				break;
+			case 0:
+				s.id = br.read_uint32();
+
+				break;
+			case 1:
+				s.name = br.read_string();
+
+				break;
+			case 2:
+				s.rarity = br.read_uint8();
+
+				break;
+			case 3:
+				s.weight = br.read_f64();
+
+				break;
+			case 4:
+				s.isQuestItem = br.read_bool();
+
+				break;
+			case 5:
+				{
+					const listLength0 = br.read_uint32();
+					if (listLength0 > (br.length - br.position)) {
+						throw new Error("Invalid list length");
+					}
+					const listStart0 = br.position;
+					s.tags = [];
+					for (; br.position - listStart0 < listLength0;) {
+						let item0;
+						item0 = br.read_string();
+
+						s.tags.push(item0);
+					}
+				}
+
+				break;
+
+		}
+	}
+}
+
+
+export class World {
+	static get TypeID() { return 60723 }
+
+	constructor(fields) {
+		if (fields) Object.assign(this, fields)
+	}
+
+	zoneData
+	systemFlags
+	lootTables
+	worldName
+	seed
+	gravity
+	players
+	activeQuests
+
+
+	deserialize(bytes) {
+		const b = new ByteReader(bytes)
+		World_deserialize(b, this)
+		return this;
+	}
+
+	serialize() {
+		const w = new ByteWriter;
+		World_serialize(w, this)
+		return w.bytes()
+	}
+}
+
+function World_serialize(b, s) {
+	b.write_uint16(60723)
+	b.write_uint32(0);
+	const structStart = b.length;
+	if (s.zoneData !== undefined) {
+		b.write_uint16(5);
+		b.write_uint32(0);
+		const mapStart0 = b.length;
+		for (const [key0, value0] of Object.entries(s.zoneData)) {
+			b.write_string(key0)
+
 			b.write_uint32(0);
-			const structStart = b.length;
-						if(s.mana !== undefined) {
-				b.write_uint16(1);
-								b.write_int32(s.mana)
-			
+			const mapStart1 = b.length;
+			for (const [key1, value1] of Object.entries(value0)) {
+				b.write_string(key1)
+
+				b.write_uint32(value1)
+
 			}
-		  			if(s.stamina !== undefined) {
-				b.write_uint16(2);
-								b.write_int32(s.stamina)
-			
-			}
-		  			if(s.critChance !== undefined) {
-				b.write_uint16(3);
-								b.write_f64(s.critChance)
-			
-			}
-		  			if(s.critDamage !== undefined) {
-				b.write_uint16(4);
-								b.write_f64(s.critDamage)
-			
-			}
-		  			if(s.resistances !== undefined) {
-				b.write_uint16(5);
-								b.write_uint32(0);
-				const mapStart0 = b.length;
-				for(const [key0, value0] of Object.entries(s.resistances)) {
-									b.write_string(key0)
-			
-									b.write_int16(value0)
-			
-				}
-				b.set_uint32(mapStart0 - 4, b.length - mapStart0);
-			
-			}
-		  			if(s.health !== undefined) {
-				b.write_uint16(0);
-								b.write_int32(s.health)
-			
-			}
-		  
-			b.set_uint32(structStart - 4, b.length - structStart);
+			b.set_uint32(mapStart1 - 4, b.length - mapStart1);
+
 		}
-	
-				function Stats_deserialize(br, s) {
-			const typeId = br.read_uint16()
-			if (typeId !== 3) {
-				throw new Error("Type ID mismatch deserializing struct Stats: expected 3, got " + typeId);
-			}
-			const length = br.read_uint32()
-			if (length > (br.length - br.position)) {
-				throw new Error("Struct Stats length exceeds buffer length");
-			}
-			const seenFields = new Set;
-			const startPos = br.position;
-			for (; br.position - startPos < length;) {
-				const fieldId = br.read_uint16();
-				if (seenFields.has(fieldId)) {
-					throw new Error("Duplicate field ID " + fieldId + " in struct Stats");
-				}
-				if (fieldId > 5) {
-					return;
-				}
-				seenFields.add(fieldId);
-				switch (fieldId) {
-									case 1:
-									s.mana = br.read_int32();
-			
-					break;
-								case 2:
-									s.stamina = br.read_int32();
-			
-					break;
-								case 3:
-									s.critChance = br.read_f64();
-			
-					break;
-								case 4:
-									s.critDamage = br.read_f64();
-			
-					break;
-								case 5:
-								{
-				const mapLength0 = br.read_uint32();
-				if (mapLength0 > (br.length-br.position)) {
-					throw new Error("Invalid map length");
-				}
-				const mapStart0 = br.position;
-				s.resistances = {};
-				for (; br.position - mapStart0 < mapLength0;) {
-					let key0;
-									key0 = br.read_string();
-			
-					let value0;
-									value0 = br.read_int16();
-			
-					s.resistances[key0] = value0;
-				}
-			}
-			
-					break;
-								case 0:
-									s.health = br.read_int32();
-			
-					break;
-				
-				}
-			}
+		b.set_uint32(mapStart0 - 4, b.length - mapStart0);
+
+	}
+	if (s.systemFlags !== undefined) {
+		b.write_uint16(6);
+		b.write_uint32(0);
+		const mapStart0 = b.length;
+		for (const [key0, value0] of Object.entries(s.systemFlags)) {
+			b.write_string(key0)
+
+			b.write_bool(value0)
+
 		}
-	
-	
-		export class Item {
-			static get TypeID() { return 1 }
+		b.set_uint32(mapStart0 - 4, b.length - mapStart0);
 
-			constructor(fields) {
-				if (fields) Object.assign(this, fields)
-			}
+	}
+	if (s.lootTables !== undefined) {
+		b.write_uint16(7);
+		b.write_uint32(0);
+		const mapStart0 = b.length;
+		for (const [key0, value0] of Object.entries(s.lootTables)) {
+			b.write_string(key0)
 
-							extraData
-							id
-							name
-							rarity
-							weight
-							isQuestItem
-							tags
-			
+			Loot_serialize(b, value0)
 
-			deserialize(bytes) {
-				const b = new ByteReader(bytes)
-				Item_deserialize(b, this)
-				return this;
-			}
-
-			serialize() {
-				const w = new ByteWriter;
-				Item_serialize(w, this)
-				return w.bytes()
-			}
 		}
+		b.set_uint32(mapStart0 - 4, b.length - mapStart0);
 
-				function Item_serialize(b, s) {
-			b.write_uint16(1)
-			b.write_uint32(0);
-			const structStart = b.length;
-						if(s.extraData !== undefined) {
-				b.write_uint16(6);
-								b.write_uint32(0);
-				const mapStart0 = b.length;
-				for(const [key0, value0] of Object.entries(s.extraData)) {
-									b.write_string(key0)
-			
-									b.write_string(value0)
-			
-				}
-				b.set_uint32(mapStart0 - 4, b.length - mapStart0);
-			
-			}
-		  			if(s.id !== undefined) {
-				b.write_uint16(0);
-								b.write_uint32(s.id)
-			
-			}
-		  			if(s.name !== undefined) {
-				b.write_uint16(1);
-								b.write_string(s.name)
-			
-			}
-		  			if(s.rarity !== undefined) {
-				b.write_uint16(2);
-								b.write_uint8(s.rarity)
-			
-			}
-		  			if(s.weight !== undefined) {
-				b.write_uint16(3);
-								b.write_f64(s.weight)
-			
-			}
-		  			if(s.isQuestItem !== undefined) {
-				b.write_uint16(4);
-								b.write_bool(s.isQuestItem)
-			
-			}
-		  			if(s.tags !== undefined) {
-				b.write_uint16(5);
-								b.write_uint32(0);
-				const listStart0 = b.length;
-				for(const item0 of s.tags) {
-									b.write_string(item0)
-			
-				}
-				b.set_uint32(listStart0 - 4, b.length - listStart0);
-			
-			}
-		  
-			b.set_uint32(structStart - 4, b.length - structStart);
+	}
+	if (s.worldName !== undefined) {
+		b.write_uint16(0);
+		b.write_string(s.worldName)
+
+	}
+	if (s.seed !== undefined) {
+		b.write_uint16(1);
+		b.write_uint64(s.seed)
+
+	}
+	if (s.gravity !== undefined) {
+		b.write_uint16(2);
+		b.write_f64(s.gravity)
+
+	}
+	if (s.players !== undefined) {
+		b.write_uint16(3);
+		b.write_uint32(0);
+		const listStart0 = b.length;
+		for (const item0 of s.players) {
+			Character_serialize(b, item0)
+
 		}
-	
-				function Item_deserialize(br, s) {
-			const typeId = br.read_uint16()
-			if (typeId !== 1) {
-				throw new Error("Type ID mismatch deserializing struct Item: expected 1, got " + typeId);
-			}
-			const length = br.read_uint32()
-			if (length > (br.length - br.position)) {
-				throw new Error("Struct Item length exceeds buffer length");
-			}
-			const seenFields = new Set;
-			const startPos = br.position;
-			for (; br.position - startPos < length;) {
-				const fieldId = br.read_uint16();
-				if (seenFields.has(fieldId)) {
-					throw new Error("Duplicate field ID " + fieldId + " in struct Item");
-				}
-				if (fieldId > 6) {
-					return;
-				}
-				seenFields.add(fieldId);
-				switch (fieldId) {
-									case 6:
-								{
-				const mapLength0 = br.read_uint32();
-				if (mapLength0 > (br.length-br.position)) {
-					throw new Error("Invalid map length");
-				}
-				const mapStart0 = br.position;
-				s.extraData = {};
-				for (; br.position - mapStart0 < mapLength0;) {
-					let key0;
-									key0 = br.read_string();
-			
-					let value0;
-									value0 = br.read_string();
-			
-					s.extraData[key0] = value0;
-				}
-			}
-			
-					break;
-								case 0:
-									s.id = br.read_uint32();
-			
-					break;
-								case 1:
-									s.name = br.read_string();
-			
-					break;
-								case 2:
-									s.rarity = br.read_uint8();
-			
-					break;
-								case 3:
-									s.weight = br.read_f64();
-			
-					break;
-								case 4:
-									s.isQuestItem = br.read_bool();
-			
-					break;
-								case 5:
-								{
-				const listLength0 = br.read_uint32();
-				if (listLength0 > (br.length - br.position)) {
-					throw new Error("Invalid list length");
-				}
-				const listStart0 = br.position;
-				s.tags = [];
-				for (; br.position - listStart0 < listLength0;) {
-					let item0;
-									item0 = br.read_string();
-			
-					s.tags.push(item0);
-				}
-			}
-			
-					break;
-				
-				}
-			}
+		b.set_uint32(listStart0 - 4, b.length - listStart0);
+
+	}
+	if (s.activeQuests !== undefined) {
+		b.write_uint16(4);
+		b.write_uint32(0);
+		const listStart0 = b.length;
+		for (const item0 of s.activeQuests) {
+			Quest_serialize(b, item0)
+
 		}
-	
-	
-		export class World {
-			static get TypeID() { return 60723 }
+		b.set_uint32(listStart0 - 4, b.length - listStart0);
 
-			constructor(fields) {
-				if (fields) Object.assign(this, fields)
-			}
+	}
 
-							zoneData
-							systemFlags
-							lootTables
-							worldName
-							seed
-							gravity
-							players
-							activeQuests
-			
+	b.set_uint32(structStart - 4, b.length - structStart);
+}
 
-			deserialize(bytes) {
-				const b = new ByteReader(bytes)
-				World_deserialize(b, this)
-				return this;
-			}
-
-			serialize() {
-				const w = new ByteWriter;
-				World_serialize(w, this)
-				return w.bytes()
-			}
+function World_deserialize(br, s) {
+	const typeId = br.read_uint16()
+	if (typeId !== 60723) {
+		throw new Error("Type ID mismatch deserializing struct World: expected 60723, got " + typeId);
+	}
+	const length = br.read_uint32()
+	if (length > (br.length - br.position)) {
+		throw new Error("Struct World length exceeds buffer length");
+	}
+	const seenFields = new Set;
+	const startPos = br.position;
+	for (; br.position - startPos < length;) {
+		const fieldId = br.read_uint16();
+		if (seenFields.has(fieldId)) {
+			throw new Error("Duplicate field ID " + fieldId + " in struct World");
 		}
-
-				function World_serialize(b, s) {
-			b.write_uint16(60723)
-			b.write_uint32(0);
-			const structStart = b.length;
-						if(s.zoneData !== undefined) {
-				b.write_uint16(5);
-								b.write_uint32(0);
-				const mapStart0 = b.length;
-				for(const [key0, value0] of Object.entries(s.zoneData)) {
-									b.write_string(key0)
-			
-									b.write_uint32(0);
-				const mapStart1 = b.length;
-				for(const [key1, value1] of Object.entries(value0)) {
-									b.write_string(key1)
-			
-									b.write_uint32(value1)
-			
-				}
-				b.set_uint32(mapStart1 - 4, b.length - mapStart1);
-			
-				}
-				b.set_uint32(mapStart0 - 4, b.length - mapStart0);
-			
-			}
-		  			if(s.systemFlags !== undefined) {
-				b.write_uint16(6);
-								b.write_uint32(0);
-				const mapStart0 = b.length;
-				for(const [key0, value0] of Object.entries(s.systemFlags)) {
-									b.write_string(key0)
-			
-									b.write_bool(value0)
-			
-				}
-				b.set_uint32(mapStart0 - 4, b.length - mapStart0);
-			
-			}
-		  			if(s.lootTables !== undefined) {
-				b.write_uint16(7);
-								b.write_uint32(0);
-				const mapStart0 = b.length;
-				for(const [key0, value0] of Object.entries(s.lootTables)) {
-									b.write_string(key0)
-			
-									Loot_serialize(b, value0)
-			
-				}
-				b.set_uint32(mapStart0 - 4, b.length - mapStart0);
-			
-			}
-		  			if(s.worldName !== undefined) {
-				b.write_uint16(0);
-								b.write_string(s.worldName)
-			
-			}
-		  			if(s.seed !== undefined) {
-				b.write_uint16(1);
-								b.write_uint64(s.seed)
-			
-			}
-		  			if(s.gravity !== undefined) {
-				b.write_uint16(2);
-								b.write_f64(s.gravity)
-			
-			}
-		  			if(s.players !== undefined) {
-				b.write_uint16(3);
-								b.write_uint32(0);
-				const listStart0 = b.length;
-				for(const item0 of s.players) {
-									Character_serialize(b, item0)
-			
-				}
-				b.set_uint32(listStart0 - 4, b.length - listStart0);
-			
-			}
-		  			if(s.activeQuests !== undefined) {
-				b.write_uint16(4);
-								b.write_uint32(0);
-				const listStart0 = b.length;
-				for(const item0 of s.activeQuests) {
-									Quest_serialize(b, item0)
-			
-				}
-				b.set_uint32(listStart0 - 4, b.length - listStart0);
-			
-			}
-		  
-			b.set_uint32(structStart - 4, b.length - structStart);
+		if (fieldId > 7) {
+			return;
 		}
-	
-				function World_deserialize(br, s) {
-			const typeId = br.read_uint16()
-			if (typeId !== 60723) {
-				throw new Error("Type ID mismatch deserializing struct World: expected 60723, got " + typeId);
-			}
-			const length = br.read_uint32()
-			if (length > (br.length - br.position)) {
-				throw new Error("Struct World length exceeds buffer length");
-			}
-			const seenFields = new Set;
-			const startPos = br.position;
-			for (; br.position - startPos < length;) {
-				const fieldId = br.read_uint16();
-				if (seenFields.has(fieldId)) {
-					throw new Error("Duplicate field ID " + fieldId + " in struct World");
+		seenFields.add(fieldId);
+		switch (fieldId) {
+			case 5:
+				{
+					const mapLength0 = br.read_uint32();
+					if (mapLength0 > (br.length - br.position)) {
+						throw new Error("Invalid map length");
+					}
+					const mapStart0 = br.position;
+					s.zoneData = {};
+					for (; br.position - mapStart0 < mapLength0;) {
+						let key0;
+						key0 = br.read_string();
+
+						let value0;
+						{
+							const mapLength1 = br.read_uint32();
+							if (mapLength1 > (br.length - br.position)) {
+								throw new Error("Invalid map length");
+							}
+							const mapStart1 = br.position;
+							value0 = {};
+							for (; br.position - mapStart1 < mapLength1;) {
+								let key1;
+								key1 = br.read_string();
+
+								let value1;
+								value1 = br.read_uint32();
+
+								value0[key1] = value1;
+							}
+						}
+
+						s.zoneData[key0] = value0;
+					}
 				}
-				if (fieldId > 7) {
-					return;
+
+				break;
+			case 6:
+				{
+					const mapLength0 = br.read_uint32();
+					if (mapLength0 > (br.length - br.position)) {
+						throw new Error("Invalid map length");
+					}
+					const mapStart0 = br.position;
+					s.systemFlags = {};
+					for (; br.position - mapStart0 < mapLength0;) {
+						let key0;
+						key0 = br.read_string();
+
+						let value0;
+						value0 = br.read_bool();
+
+						s.systemFlags[key0] = value0;
+					}
 				}
-				seenFields.add(fieldId);
-				switch (fieldId) {
-									case 5:
-								{
-				const mapLength0 = br.read_uint32();
-				if (mapLength0 > (br.length-br.position)) {
-					throw new Error("Invalid map length");
+
+				break;
+			case 7:
+				{
+					const mapLength0 = br.read_uint32();
+					if (mapLength0 > (br.length - br.position)) {
+						throw new Error("Invalid map length");
+					}
+					const mapStart0 = br.position;
+					s.lootTables = {};
+					for (; br.position - mapStart0 < mapLength0;) {
+						let key0;
+						key0 = br.read_string();
+
+						let value0;
+						value0 = new Loot();
+						Loot_deserialize(br, value0);
+
+						s.lootTables[key0] = value0;
+					}
 				}
-				const mapStart0 = br.position;
-				s.zoneData = {};
-				for (; br.position - mapStart0 < mapLength0;) {
-					let key0;
-									key0 = br.read_string();
-			
-					let value0;
-								{
-				const mapLength1 = br.read_uint32();
-				if (mapLength1 > (br.length-br.position)) {
-					throw new Error("Invalid map length");
+
+				break;
+			case 0:
+				s.worldName = br.read_string();
+
+				break;
+			case 1:
+				s.seed = br.read_uint64();
+
+				break;
+			case 2:
+				s.gravity = br.read_f64();
+
+				break;
+			case 3:
+				{
+					const listLength0 = br.read_uint32();
+					if (listLength0 > (br.length - br.position)) {
+						throw new Error("Invalid list length");
+					}
+					const listStart0 = br.position;
+					s.players = [];
+					for (; br.position - listStart0 < listLength0;) {
+						let item0;
+						item0 = new Character();
+						Character_deserialize(br, item0);
+
+						s.players.push(item0);
+					}
 				}
-				const mapStart1 = br.position;
-				value0 = {};
-				for (; br.position - mapStart1 < mapLength1;) {
-					let key1;
-									key1 = br.read_string();
-			
-					let value1;
-									value1 = br.read_uint32();
-			
-					value0[key1] = value1;
+
+				break;
+			case 4:
+				{
+					const listLength0 = br.read_uint32();
+					if (listLength0 > (br.length - br.position)) {
+						throw new Error("Invalid list length");
+					}
+					const listStart0 = br.position;
+					s.activeQuests = [];
+					for (; br.position - listStart0 < listLength0;) {
+						let item0;
+						item0 = new Quest();
+						Quest_deserialize(br, item0);
+
+						s.activeQuests.push(item0);
+					}
 				}
-			}
-			
-					s.zoneData[key0] = value0;
-				}
-			}
-			
-					break;
-								case 6:
-								{
-				const mapLength0 = br.read_uint32();
-				if (mapLength0 > (br.length-br.position)) {
-					throw new Error("Invalid map length");
-				}
-				const mapStart0 = br.position;
-				s.systemFlags = {};
-				for (; br.position - mapStart0 < mapLength0;) {
-					let key0;
-									key0 = br.read_string();
-			
-					let value0;
-									value0 = br.read_bool();
-			
-					s.systemFlags[key0] = value0;
-				}
-			}
-			
-					break;
-								case 7:
-								{
-				const mapLength0 = br.read_uint32();
-				if (mapLength0 > (br.length-br.position)) {
-					throw new Error("Invalid map length");
-				}
-				const mapStart0 = br.position;
-				s.lootTables = {};
-				for (; br.position - mapStart0 < mapLength0;) {
-					let key0;
-									key0 = br.read_string();
-			
-					let value0;
-									value0 = new Loot();
-				Loot_deserialize(br, value0);
-			
-					s.lootTables[key0] = value0;
-				}
-			}
-			
-					break;
-								case 0:
-									s.worldName = br.read_string();
-			
-					break;
-								case 1:
-									s.seed = br.read_uint64();
-			
-					break;
-								case 2:
-									s.gravity = br.read_f64();
-			
-					break;
-								case 3:
-								{
-				const listLength0 = br.read_uint32();
-				if (listLength0 > (br.length - br.position)) {
-					throw new Error("Invalid list length");
-				}
-				const listStart0 = br.position;
-				s.players = [];
-				for (; br.position - listStart0 < listLength0;) {
-					let item0;
-									item0 = new Character();
-				Character_deserialize(br, item0);
-			
-					s.players.push(item0);
-				}
-			}
-			
-					break;
-								case 4:
-								{
-				const listLength0 = br.read_uint32();
-				if (listLength0 > (br.length - br.position)) {
-					throw new Error("Invalid list length");
-				}
-				const listStart0 = br.position;
-				s.activeQuests = [];
-				for (; br.position - listStart0 < listLength0;) {
-					let item0;
-									item0 = new Quest();
-				Quest_deserialize(br, item0);
-			
-					s.activeQuests.push(item0);
-				}
-			}
-			
-					break;
-				
-				}
-			}
+
+				break;
+
 		}
-	
-	
-		export class Companion {
-			static get TypeID() { return 21813 }
+	}
+}
 
-			constructor(fields) {
-				if (fields) Object.assign(this, fields)
-			}
 
-							bond
-							name
-							level
-			
+export class Companion {
+	static get TypeID() { return 21813 }
 
-			deserialize(bytes) {
-				const b = new ByteReader(bytes)
-				Companion_deserialize(b, this)
-				return this;
-			}
+	constructor(fields) {
+		if (fields) Object.assign(this, fields)
+	}
 
-			serialize() {
-				const w = new ByteWriter;
-				Companion_serialize(w, this)
-				return w.bytes()
-			}
+	bond
+	name
+	level
+
+
+	deserialize(bytes) {
+		const b = new ByteReader(bytes)
+		Companion_deserialize(b, this)
+		return this;
+	}
+
+	serialize() {
+		const w = new ByteWriter;
+		Companion_serialize(w, this)
+		return w.bytes()
+	}
+}
+
+function Companion_serialize(b, s) {
+	b.write_uint16(21813)
+	b.write_uint32(0);
+	const structStart = b.length;
+	if (s.bond !== undefined) {
+		b.write_uint16(2);
+		b.write_f64(s.bond)
+
+	}
+	if (s.name !== undefined) {
+		b.write_uint16(0);
+		b.write_string(s.name)
+
+	}
+	if (s.level !== undefined) {
+		b.write_uint16(1);
+		b.write_uint8(s.level)
+
+	}
+
+	b.set_uint32(structStart - 4, b.length - structStart);
+}
+
+function Companion_deserialize(br, s) {
+	const typeId = br.read_uint16()
+	if (typeId !== 21813) {
+		throw new Error("Type ID mismatch deserializing struct Companion: expected 21813, got " + typeId);
+	}
+	const length = br.read_uint32()
+	if (length > (br.length - br.position)) {
+		throw new Error("Struct Companion length exceeds buffer length");
+	}
+	const seenFields = new Set;
+	const startPos = br.position;
+	for (; br.position - startPos < length;) {
+		const fieldId = br.read_uint16();
+		if (seenFields.has(fieldId)) {
+			throw new Error("Duplicate field ID " + fieldId + " in struct Companion");
 		}
-
-				function Companion_serialize(b, s) {
-			b.write_uint16(21813)
-			b.write_uint32(0);
-			const structStart = b.length;
-						if(s.bond !== undefined) {
-				b.write_uint16(2);
-								b.write_f64(s.bond)
-			
-			}
-		  			if(s.name !== undefined) {
-				b.write_uint16(0);
-								b.write_string(s.name)
-			
-			}
-		  			if(s.level !== undefined) {
-				b.write_uint16(1);
-								b.write_uint8(s.level)
-			
-			}
-		  
-			b.set_uint32(structStart - 4, b.length - structStart);
+		if (fieldId > 2) {
+			return;
 		}
-	
-				function Companion_deserialize(br, s) {
-			const typeId = br.read_uint16()
-			if (typeId !== 21813) {
-				throw new Error("Type ID mismatch deserializing struct Companion: expected 21813, got " + typeId);
-			}
-			const length = br.read_uint32()
-			if (length > (br.length - br.position)) {
-				throw new Error("Struct Companion length exceeds buffer length");
-			}
-			const seenFields = new Set;
-			const startPos = br.position;
-			for (; br.position - startPos < length;) {
-				const fieldId = br.read_uint16();
-				if (seenFields.has(fieldId)) {
-					throw new Error("Duplicate field ID " + fieldId + " in struct Companion");
-				}
-				if (fieldId > 2) {
-					return;
-				}
-				seenFields.add(fieldId);
-				switch (fieldId) {
-									case 2:
-									s.bond = br.read_f64();
-			
-					break;
-								case 0:
-									s.name = br.read_string();
-			
-					break;
-								case 1:
-									s.level = br.read_uint8();
-			
-					break;
-				
-				}
-			}
+		seenFields.add(fieldId);
+		switch (fieldId) {
+			case 2:
+				s.bond = br.read_f64();
+
+				break;
+			case 0:
+				s.name = br.read_string();
+
+				break;
+			case 1:
+				s.level = br.read_uint8();
+
+				break;
+
 		}
-	
-	
-		export class Loot {
-			static get TypeID() { return 983 }
+	}
+}
 
-			constructor(fields) {
-				if (fields) Object.assign(this, fields)
-			}
 
-							baseChance
-							modifiers
-							entries
-			
+export class Loot {
+	static get TypeID() { return 983 }
 
-			deserialize(bytes) {
-				const b = new ByteReader(bytes)
-				Loot_deserialize(b, this)
-				return this;
-			}
+	constructor(fields) {
+		if (fields) Object.assign(this, fields)
+	}
 
-			serialize() {
-				const w = new ByteWriter;
-				Loot_serialize(w, this)
-				return w.bytes()
-			}
+	baseChance
+	modifiers
+	entries
+
+
+	deserialize(bytes) {
+		const b = new ByteReader(bytes)
+		Loot_deserialize(b, this)
+		return this;
+	}
+
+	serialize() {
+		const w = new ByteWriter;
+		Loot_serialize(w, this)
+		return w.bytes()
+	}
+}
+
+function Loot_serialize(b, s) {
+	b.write_uint16(983)
+	b.write_uint32(0);
+	const structStart = b.length;
+	if (s.baseChance !== undefined) {
+		b.write_uint16(0);
+		b.write_f64(s.baseChance)
+
+	}
+	if (s.modifiers !== undefined) {
+		b.write_uint16(1);
+		b.write_uint32(0);
+		const mapStart0 = b.length;
+		for (const [key0, value0] of Object.entries(s.modifiers)) {
+			b.write_string(key0)
+
+			b.write_f64(value0)
+
 		}
+		b.set_uint32(mapStart0 - 4, b.length - mapStart0);
 
-				function Loot_serialize(b, s) {
-			b.write_uint16(983)
-			b.write_uint32(0);
-			const structStart = b.length;
-						if(s.baseChance !== undefined) {
-				b.write_uint16(0);
-								b.write_f64(s.baseChance)
-			
-			}
-		  			if(s.modifiers !== undefined) {
-				b.write_uint16(1);
-								b.write_uint32(0);
-				const mapStart0 = b.length;
-				for(const [key0, value0] of Object.entries(s.modifiers)) {
-									b.write_string(key0)
-			
-									b.write_f64(value0)
-			
-				}
-				b.set_uint32(mapStart0 - 4, b.length - mapStart0);
-			
-			}
-		  			if(s.entries !== undefined) {
-				b.write_uint16(2);
-								b.write_uint32(0);
-				const listStart0 = b.length;
-				for(const item0 of s.entries) {
-									LootEntry_serialize(b, item0)
-			
-				}
-				b.set_uint32(listStart0 - 4, b.length - listStart0);
-			
-			}
-		  
-			b.set_uint32(structStart - 4, b.length - structStart);
+	}
+	if (s.entries !== undefined) {
+		b.write_uint16(2);
+		b.write_uint32(0);
+		const listStart0 = b.length;
+		for (const item0 of s.entries) {
+			LootEntry_serialize(b, item0)
+
 		}
-	
-				function Loot_deserialize(br, s) {
-			const typeId = br.read_uint16()
-			if (typeId !== 983) {
-				throw new Error("Type ID mismatch deserializing struct Loot: expected 983, got " + typeId);
-			}
-			const length = br.read_uint32()
-			if (length > (br.length - br.position)) {
-				throw new Error("Struct Loot length exceeds buffer length");
-			}
-			const seenFields = new Set;
-			const startPos = br.position;
-			for (; br.position - startPos < length;) {
-				const fieldId = br.read_uint16();
-				if (seenFields.has(fieldId)) {
-					throw new Error("Duplicate field ID " + fieldId + " in struct Loot");
-				}
-				if (fieldId > 2) {
-					return;
-				}
-				seenFields.add(fieldId);
-				switch (fieldId) {
-									case 0:
-									s.baseChance = br.read_f64();
-			
-					break;
-								case 1:
-								{
-				const mapLength0 = br.read_uint32();
-				if (mapLength0 > (br.length-br.position)) {
-					throw new Error("Invalid map length");
-				}
-				const mapStart0 = br.position;
-				s.modifiers = {};
-				for (; br.position - mapStart0 < mapLength0;) {
-					let key0;
-									key0 = br.read_string();
-			
-					let value0;
-									value0 = br.read_f64();
-			
-					s.modifiers[key0] = value0;
-				}
-			}
-			
-					break;
-								case 2:
-								{
-				const listLength0 = br.read_uint32();
-				if (listLength0 > (br.length - br.position)) {
-					throw new Error("Invalid list length");
-				}
-				const listStart0 = br.position;
-				s.entries = [];
-				for (; br.position - listStart0 < listLength0;) {
-					let item0;
-									item0 = new LootEntry();
-				LootEntry_deserialize(br, item0);
-			
-					s.entries.push(item0);
-				}
-			}
-			
-					break;
-				
-				}
-			}
+		b.set_uint32(listStart0 - 4, b.length - listStart0);
+
+	}
+
+	b.set_uint32(structStart - 4, b.length - structStart);
+}
+
+function Loot_deserialize(br, s) {
+	const typeId = br.read_uint16()
+	if (typeId !== 983) {
+		throw new Error("Type ID mismatch deserializing struct Loot: expected 983, got " + typeId);
+	}
+	const length = br.read_uint32()
+	if (length > (br.length - br.position)) {
+		throw new Error("Struct Loot length exceeds buffer length");
+	}
+	const seenFields = new Set;
+	const startPos = br.position;
+	for (; br.position - startPos < length;) {
+		const fieldId = br.read_uint16();
+		if (seenFields.has(fieldId)) {
+			throw new Error("Duplicate field ID " + fieldId + " in struct Loot");
 		}
-	
-	
-		export class LootEntry {
-			static get TypeID() { return 305 }
-
-			constructor(fields) {
-				if (fields) Object.assign(this, fields)
-			}
-
-							itemId
-							minQty
-							maxQty
-							conditions
-			
-
-			deserialize(bytes) {
-				const b = new ByteReader(bytes)
-				LootEntry_deserialize(b, this)
-				return this;
-			}
-
-			serialize() {
-				const w = new ByteWriter;
-				LootEntry_serialize(w, this)
-				return w.bytes()
-			}
+		if (fieldId > 2) {
+			return;
 		}
+		seenFields.add(fieldId);
+		switch (fieldId) {
+			case 0:
+				s.baseChance = br.read_f64();
 
-				function LootEntry_serialize(b, s) {
-			b.write_uint16(305)
-			b.write_uint32(0);
-			const structStart = b.length;
-						if(s.itemId !== undefined) {
-				b.write_uint16(0);
-								b.write_uint32(s.itemId)
-			
-			}
-		  			if(s.minQty !== undefined) {
-				b.write_uint16(1);
-								b.write_uint8(s.minQty)
-			
-			}
-		  			if(s.maxQty !== undefined) {
-				b.write_uint16(2);
-								b.write_uint8(s.maxQty)
-			
-			}
-		  			if(s.conditions !== undefined) {
-				b.write_uint16(3);
-								b.write_uint32(0);
-				const mapStart0 = b.length;
-				for(const [key0, value0] of Object.entries(s.conditions)) {
-									b.write_string(key0)
-			
-									b.write_bool(value0)
-			
+				break;
+			case 1:
+				{
+					const mapLength0 = br.read_uint32();
+					if (mapLength0 > (br.length - br.position)) {
+						throw new Error("Invalid map length");
+					}
+					const mapStart0 = br.position;
+					s.modifiers = {};
+					for (; br.position - mapStart0 < mapLength0;) {
+						let key0;
+						key0 = br.read_string();
+
+						let value0;
+						value0 = br.read_f64();
+
+						s.modifiers[key0] = value0;
+					}
 				}
-				b.set_uint32(mapStart0 - 4, b.length - mapStart0);
-			
-			}
-		  
-			b.set_uint32(structStart - 4, b.length - structStart);
+
+				break;
+			case 2:
+				{
+					const listLength0 = br.read_uint32();
+					if (listLength0 > (br.length - br.position)) {
+						throw new Error("Invalid list length");
+					}
+					const listStart0 = br.position;
+					s.entries = [];
+					for (; br.position - listStart0 < listLength0;) {
+						let item0;
+						item0 = new LootEntry();
+						LootEntry_deserialize(br, item0);
+
+						s.entries.push(item0);
+					}
+				}
+
+				break;
+
 		}
-	
-				function LootEntry_deserialize(br, s) {
-			const typeId = br.read_uint16()
-			if (typeId !== 305) {
-				throw new Error("Type ID mismatch deserializing struct LootEntry: expected 305, got " + typeId);
-			}
-			const length = br.read_uint32()
-			if (length > (br.length - br.position)) {
-				throw new Error("Struct LootEntry length exceeds buffer length");
-			}
-			const seenFields = new Set;
-			const startPos = br.position;
-			for (; br.position - startPos < length;) {
-				const fieldId = br.read_uint16();
-				if (seenFields.has(fieldId)) {
-					throw new Error("Duplicate field ID " + fieldId + " in struct LootEntry");
-				}
-				if (fieldId > 3) {
-					return;
-				}
-				seenFields.add(fieldId);
-				switch (fieldId) {
-									case 0:
-									s.itemId = br.read_uint32();
-			
-					break;
-								case 1:
-									s.minQty = br.read_uint8();
-			
-					break;
-								case 2:
-									s.maxQty = br.read_uint8();
-			
-					break;
-								case 3:
-								{
-				const mapLength0 = br.read_uint32();
-				if (mapLength0 > (br.length-br.position)) {
-					throw new Error("Invalid map length");
-				}
-				const mapStart0 = br.position;
-				s.conditions = {};
-				for (; br.position - mapStart0 < mapLength0;) {
-					let key0;
-									key0 = br.read_string();
-			
-					let value0;
-									value0 = br.read_bool();
-			
-					s.conditions[key0] = value0;
-				}
-			}
-			
-					break;
-				
-				}
-			}
+	}
+}
+
+
+export class LootEntry {
+	static get TypeID() { return 305 }
+
+	constructor(fields) {
+		if (fields) Object.assign(this, fields)
+	}
+
+	itemId
+	minQty
+	maxQty
+	conditions
+
+
+	deserialize(bytes) {
+		const b = new ByteReader(bytes)
+		LootEntry_deserialize(b, this)
+		return this;
+	}
+
+	serialize() {
+		const w = new ByteWriter;
+		LootEntry_serialize(w, this)
+		return w.bytes()
+	}
+}
+
+function LootEntry_serialize(b, s) {
+	b.write_uint16(305)
+	b.write_uint32(0);
+	const structStart = b.length;
+	if (s.itemId !== undefined) {
+		b.write_uint16(0);
+		b.write_uint32(s.itemId)
+
+	}
+	if (s.minQty !== undefined) {
+		b.write_uint16(1);
+		b.write_uint8(s.minQty)
+
+	}
+	if (s.maxQty !== undefined) {
+		b.write_uint16(2);
+		b.write_uint8(s.maxQty)
+
+	}
+	if (s.conditions !== undefined) {
+		b.write_uint16(3);
+		b.write_uint32(0);
+		const mapStart0 = b.length;
+		for (const [key0, value0] of Object.entries(s.conditions)) {
+			b.write_string(key0)
+
+			b.write_bool(value0)
+
 		}
-	
-	
-		export class EquipmentSlot {
-			static get TypeID() { return 35339 }
+		b.set_uint32(mapStart0 - 4, b.length - mapStart0);
 
-			constructor(fields) {
-				if (fields) Object.assign(this, fields)
-			}
+	}
 
-							slotName
-							item
-			
+	b.set_uint32(structStart - 4, b.length - structStart);
+}
 
-			deserialize(bytes) {
-				const b = new ByteReader(bytes)
-				EquipmentSlot_deserialize(b, this)
-				return this;
-			}
-
-			serialize() {
-				const w = new ByteWriter;
-				EquipmentSlot_serialize(w, this)
-				return w.bytes()
-			}
+function LootEntry_deserialize(br, s) {
+	const typeId = br.read_uint16()
+	if (typeId !== 305) {
+		throw new Error("Type ID mismatch deserializing struct LootEntry: expected 305, got " + typeId);
+	}
+	const length = br.read_uint32()
+	if (length > (br.length - br.position)) {
+		throw new Error("Struct LootEntry length exceeds buffer length");
+	}
+	const seenFields = new Set;
+	const startPos = br.position;
+	for (; br.position - startPos < length;) {
+		const fieldId = br.read_uint16();
+		if (seenFields.has(fieldId)) {
+			throw new Error("Duplicate field ID " + fieldId + " in struct LootEntry");
 		}
-
-				function EquipmentSlot_serialize(b, s) {
-			b.write_uint16(35339)
-			b.write_uint32(0);
-			const structStart = b.length;
-						if(s.slotName !== undefined) {
-				b.write_uint16(0);
-								b.write_string(s.slotName)
-			
-			}
-		  			if(s.item !== undefined) {
-				b.write_uint16(1);
-								Item_serialize(b, s.item)
-			
-			}
-		  
-			b.set_uint32(structStart - 4, b.length - structStart);
+		if (fieldId > 3) {
+			return;
 		}
-	
-				function EquipmentSlot_deserialize(br, s) {
-			const typeId = br.read_uint16()
-			if (typeId !== 35339) {
-				throw new Error("Type ID mismatch deserializing struct EquipmentSlot: expected 35339, got " + typeId);
-			}
-			const length = br.read_uint32()
-			if (length > (br.length - br.position)) {
-				throw new Error("Struct EquipmentSlot length exceeds buffer length");
-			}
-			const seenFields = new Set;
-			const startPos = br.position;
-			for (; br.position - startPos < length;) {
-				const fieldId = br.read_uint16();
-				if (seenFields.has(fieldId)) {
-					throw new Error("Duplicate field ID " + fieldId + " in struct EquipmentSlot");
+		seenFields.add(fieldId);
+		switch (fieldId) {
+			case 0:
+				s.itemId = br.read_uint32();
+
+				break;
+			case 1:
+				s.minQty = br.read_uint8();
+
+				break;
+			case 2:
+				s.maxQty = br.read_uint8();
+
+				break;
+			case 3:
+				{
+					const mapLength0 = br.read_uint32();
+					if (mapLength0 > (br.length - br.position)) {
+						throw new Error("Invalid map length");
+					}
+					const mapStart0 = br.position;
+					s.conditions = {};
+					for (; br.position - mapStart0 < mapLength0;) {
+						let key0;
+						key0 = br.read_string();
+
+						let value0;
+						value0 = br.read_bool();
+
+						s.conditions[key0] = value0;
+					}
 				}
-				if (fieldId > 1) {
-					return;
-				}
-				seenFields.add(fieldId);
-				switch (fieldId) {
-									case 0:
-									s.slotName = br.read_string();
-			
-					break;
-								case 1:
-									s.item = new Item();
+
+				break;
+
+		}
+	}
+}
+
+
+export class EquipmentSlot {
+	static get TypeID() { return 35339 }
+
+	constructor(fields) {
+		if (fields) Object.assign(this, fields)
+	}
+
+	slotName
+	item
+
+
+	deserialize(bytes) {
+		const b = new ByteReader(bytes)
+		EquipmentSlot_deserialize(b, this)
+		return this;
+	}
+
+	serialize() {
+		const w = new ByteWriter;
+		EquipmentSlot_serialize(w, this)
+		return w.bytes()
+	}
+}
+
+function EquipmentSlot_serialize(b, s) {
+	b.write_uint16(35339)
+	b.write_uint32(0);
+	const structStart = b.length;
+	if (s.slotName !== undefined) {
+		b.write_uint16(0);
+		b.write_string(s.slotName)
+
+	}
+	if (s.item !== undefined) {
+		b.write_uint16(1);
+		Item_serialize(b, s.item)
+
+	}
+
+	b.set_uint32(structStart - 4, b.length - structStart);
+}
+
+function EquipmentSlot_deserialize(br, s) {
+	const typeId = br.read_uint16()
+	if (typeId !== 35339) {
+		throw new Error("Type ID mismatch deserializing struct EquipmentSlot: expected 35339, got " + typeId);
+	}
+	const length = br.read_uint32()
+	if (length > (br.length - br.position)) {
+		throw new Error("Struct EquipmentSlot length exceeds buffer length");
+	}
+	const seenFields = new Set;
+	const startPos = br.position;
+	for (; br.position - startPos < length;) {
+		const fieldId = br.read_uint16();
+		if (seenFields.has(fieldId)) {
+			throw new Error("Duplicate field ID " + fieldId + " in struct EquipmentSlot");
+		}
+		if (fieldId > 1) {
+			return;
+		}
+		seenFields.add(fieldId);
+		switch (fieldId) {
+			case 0:
+				s.slotName = br.read_string();
+
+				break;
+			case 1:
+				s.item = new Item();
 				Item_deserialize(br, s.item);
-			
-					break;
-				
-				}
-			}
+
+				break;
+
 		}
-	
-	
+	}
+}
+
+
 
 
 class ByteWriter {
@@ -1975,15 +1975,15 @@ class ByteWriter {
 
 class ByteReader {
 	constructor(buffer) {
-  this.buffer = buffer
-  this.view = new DataView(
-      this.buffer.buffer,
-      this.buffer.byteOffset,
-      this.buffer.byteLength
-  );
-  this.position = 0;
-  this.length = buffer.length
-}
+		this.buffer = buffer
+		this.view = new DataView(
+			this.buffer.buffer,
+			this.buffer.byteOffset,
+			this.buffer.byteLength
+		);
+		this.position = 0;
+		this.length = buffer.length
+	}
 
 	read_bool() {
 		if (this.position + 1 > this.length) {

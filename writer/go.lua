@@ -172,7 +172,7 @@ local function print_struct_deserializer(name, struct)
 
 	local function print_field_deserializer(field, output)
 		if field.type.kind == 'primitive' then
-			return [[ err = br.Read(${output}) ]] % { output = output }
+			return [[ ${output} = new(${gtype}); err = br.Read(${output}) ]] % { output = output, gtype = go_type(field.type) }
 		elseif field.type.kind == "struct" then
 			return [[
 				${output} = &${stype}{}
@@ -188,9 +188,9 @@ local function print_struct_deserializer(name, struct)
 				if err != nil || listLen${i} < 0 || listLen${i} > br.Len() {
 					return fmt.Errorf("invalid list length: %d", listLen${i})
 				}
-				startLen${i} := br.Len()
+				startPos${i} := br.Offset()
 				${output} = &${list_type}{}
-				for br.Len() > startLen${i}-listLen${i} {
+				for br.Offset() < startPos${i}+listLen${i} {
 					var item${i} *${elem_type}
 					${item_deserializer}
 					if err != nil {
@@ -212,9 +212,9 @@ local function print_struct_deserializer(name, struct)
 				if err != nil || mapLen${i} < 0 || mapLen${i} > br.Len() {
 					return fmt.Errorf("invalid map length: %d", mapLen${i})
 				}
-				startLen${i} := br.Len()
+				startPos${i} := br.Offset()
 				${output} = &${map_type}{}
-				for br.Len() > startLen${i}-mapLen${i} {
+				for br.Offset() < startPos${i}+mapLen${i} {
 					var key${i} *${key_type}
 					${key_deserializer}
 					if err != nil {
@@ -265,11 +265,14 @@ local function print_struct_deserializer(name, struct)
 				return fmt.Errorf("invalid struct length: %d", length)
 			}
 			seenFields := make(map[uint16]bool)
-			startLen := br.Len()
-			for br.Len() > startLen-int(length) {
+			startPos := br.Offset()
+			for br.Offset() < startPos + length {
 				fieldId, err := br.ReadFieldId()
-				if err != nil || seenFields[fieldId] {
-					return fmt.Errorf("error reading field id or duplicate field id: %d", fieldId)
+				if err != nil {
+					return err
+				}
+				if seenFields[fieldId] {
+					return fmt.Errorf("duplicate field id: %d", fieldId)
 				}
 				if fieldId > ${max_field_id} {
 					return nil
@@ -474,17 +477,23 @@ func (bw *ByteWriter) WriteLength(len int) error {
 func (bw *ByteWriter) Write(data any) error {
 	var err error
 	switch v := data.(type) {
-	case *bool, *int16, *uint16, *int32, *uint32, *float32, *float64:
+	case *bool, bool, *int8, int8, *uint8, uint8, *int16, int16, *uint16, uint16, *int32, int32, *uint32, uint32, *int64, int64, *uint64, uint64, *float32, float32, *float64, float64:
 		err = binary.Write(&bw.b, binary.LittleEndian, v)
 	case []byte:
 		err = bw.WriteLength(len(v))
 		_, err = bw.b.Write(v)
-	case string:
-		strBytes := []byte(v)
-		err = bw.WriteLength(len(strBytes))
-		_, err = bw.b.Write(strBytes)
+	case string, *string:
+		if strPtr, ok := v.(*string); ok {
+			strBytes := []byte(*strPtr)
+			err = bw.WriteLength(len(strBytes))
+			_, err = bw.b.Write(strBytes)
+		} else {
+			strBytes := []byte(v.(string))
+			err = bw.WriteLength(len(strBytes))
+			_, err = bw.b.Write(strBytes)
+		}
 	default:
-		return fmt.Errorf("unsupported data type: %T", v)
+		return fmt.Errorf("writing unsupported data type: %T", v)
 	}
 	return err
 }
@@ -532,6 +541,18 @@ func (br *ByteReader) Read(out any) error {
 		}
 		*v = (*br.b)[br.offset] != 0
 		br.offset += 1
+	case *int8:
+		if br.Remaining() < 1 {
+			return fmt.Errorf("not enough data to read int8")
+		}
+		*v = int8((*br.b)[br.offset])
+		br.offset += 1
+	case *uint8:
+		if br.Remaining() < 1 {
+			return fmt.Errorf("not enough data to read uint8")
+		}
+		*v = (*br.b)[br.offset]
+		br.offset += 1
 	case *int16:
 		if br.Remaining() < 2 {
 			return fmt.Errorf("not enough data to read int16")
@@ -556,6 +577,18 @@ func (br *ByteReader) Read(out any) error {
 		}
 		*v = binary.LittleEndian.Uint32((*br.b)[br.offset:br.offset+4])
 		br.offset += 4
+	case *int64:
+		if br.Remaining() < 8 {
+			return fmt.Errorf("not enough data to read int64")
+		}
+		*v = int64(binary.LittleEndian.Uint64((*br.b)[br.offset:br.offset+8]))
+		br.offset += 8
+	case *uint64:
+		if br.Remaining() < 8 {
+			return fmt.Errorf("not enough data to read uint64")
+		}
+		*v = binary.LittleEndian.Uint64((*br.b)[br.offset:br.offset+8])
+		br.offset += 8
 	case *float32:
 		if br.Remaining() < 4 {
 			return fmt.Errorf("not enough data to read float32")
@@ -579,7 +612,7 @@ func (br *ByteReader) Read(out any) error {
 		*v = string((*br.b)[br.offset : br.offset+int(length)])
 		br.offset += int(length)
 	default:
-		return fmt.Errorf("unsupported data type: %T", v)
+		return fmt.Errorf("reading unsupported data type: %T", v)
 	}
 	return nil
 }
