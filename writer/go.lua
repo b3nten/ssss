@@ -107,7 +107,7 @@ local function print_struct_serializer(name, struct)
 				  if err != nil {
 					  return err
 				  }
-					${writer}
+				  ${writer}
 			  }
 		  ]] % {
 				fname = pascal_case(field.name),
@@ -185,7 +185,7 @@ local function print_struct_deserializer(name, struct)
 			local i = field.index or 0
 			return [[
 				listLen${i}, err := br.ReadLength()
-				if err != nil || listLen${i} < 0 || listLen${i} > br.Len() {
+				if err != nil || listLen${i} < 0 || listLen${i} > br.Remaining() {
 					return fmt.Errorf("invalid list length: %d", listLen${i})
 				}
 				startPos${i} := br.Offset()
@@ -209,7 +209,7 @@ local function print_struct_deserializer(name, struct)
 			local i = field.index or 0
 			return [[
 				mapLen${i}, err := br.ReadLength()
-				if err != nil || mapLen${i} < 0 || mapLen${i} > br.Len() {
+				if err != nil || mapLen${i} < 0 || mapLen${i} > br.Remaining() {
 					return fmt.Errorf("invalid map length: %d", mapLen${i})
 				}
 				startPos${i} := br.Offset()
